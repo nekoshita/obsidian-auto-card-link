@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-plugin-template",
+	"name": "Obsidian Plugin Template",
+	"version": "0.1.0",
+	"minAppVersion": "0.12.0",
+	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
+	"author": "Nekoshita Yuki",
+	"authorUrl": "https://github.com/nekoshita",
+	"isDesktopOnly": false
+}
