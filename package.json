@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-plugin-template",
+  "name": "obsidian-ogp",
   "version": "0.1.0",
   "description": "",
   "main": "main.js",
@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nekoshita/obsidian-plugin-template.git"
+    "url": "git+https://github.com/nekoshita/obsidian-ogp.git"
   },
   "author": "Nekoshita Yuki",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nekoshita/obsidian-plugin-template/issues"
+    "url": "https://github.com/nekoshita/obsidian-ogp/issues"
   },
-  "homepage": "https://github.com/nekoshita/obsidian-plugin-template#readme",
+  "homepage": "https://github.com/nekoshita/obsidian-ogp#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",

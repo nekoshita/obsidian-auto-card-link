@@ -1,4 +1,4 @@
-# obsidian-plugin-template
+# obsidian-ogp
 
 This is a sample plugin for Obsidian (https://obsidian.md).
 
