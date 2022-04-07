@@ -1,50 +1,48 @@
-import { EditorExtensions } from './editor-enhancements';
-import { Plugin, MarkdownView, Editor } from 'obsidian';
+import { EditorExtensions } from "./editor-enhancements";
+import { Plugin, MarkdownView, Editor } from "obsidian";
 import {
   AutoLinkTitleSettings,
   AutoLinkTitleSettingTab,
   DEFAULT_SETTINGS,
-} from './settings';
-import { CheckIf } from 'checkif';
-import getPageOGData from 'scraper';
-import { OGData } from 'interfaces';
+} from "./settings";
+import { CheckIf } from "checkif";
 
 interface PasteFunction {
   (this: HTMLElement, ev: ClipboardEvent): void;
 }
 
 export default class ObsidianOGP extends Plugin {
-  settings: AutoLinkTitleSettings;
-  pasteFunction: PasteFunction;
+  settings?: AutoLinkTitleSettings;
+  pasteFunction?: PasteFunction;
 
   async onload() {
-    console.log('loading obsidian-auto-link-title');
+    console.log("loading obsidian-auto-link-title");
     await this.loadSettings();
 
     // Listen to paste event
-    this.pasteFunction = this.pasteUrlWithTitle.bind(this);
+    this.pasteFunction = this.pasteUrlByIframe.bind(this);
 
     this.addCommand({
-      id: 'auto-link-title-paste',
-      name: 'Paste URL and auto fetch title',
+      id: "auto-link-title-paste",
+      name: "Paste URL and auto fetch title",
       callback: () => {
-        this.manualPasteUrlWithTitle();
+        this.manualPasteUrlByIframe();
       },
       hotkeys: [],
     });
 
     this.registerEvent(
-      this.app.workspace.on('editor-paste', this.pasteFunction)
+      this.app.workspace.on("editor-paste", this.pasteFunction)
     );
 
     this.addCommand({
-      id: 'enhance-url-with-title',
-      name: 'Enhance existing URL with link and title',
+      id: "enhance-url-with-title",
+      name: "Enhance existing URL with link and title",
       callback: () => this.addTitleToLink(),
       hotkeys: [
         {
-          modifiers: ['Mod', 'Shift'],
-          key: 'e',
+          modifiers: ["Mod", "Shift"],
+          key: "e",
         },
       ],
     });
@@ -55,38 +53,36 @@ export default class ObsidianOGP extends Plugin {
   addTitleToLink(): void {
     // Only attempt fetch if online
     if (!navigator.onLine) return;
-
     const editor = this.getEditor();
-    if (editor == null) return;
-
+    if (!editor) return;
     const selectedText = (
-      EditorExtensions.getSelectedText(editor) || ''
+      EditorExtensions.getSelectedText(editor) || ""
     ).trim();
 
     // If the cursor is on a raw html link, convert to a markdown link and fetch title
     if (CheckIf.isUrl(selectedText)) {
-      this.convertUrlToTitledLink(editor, selectedText);
+      this.convertUrlToIframe(editor, selectedText);
     }
     // If the cursor is on the URL part of a markdown link, fetch title and replace existing link title
     else if (CheckIf.isLinkedUrl(selectedText)) {
       const link = this.getUrlFromLink(selectedText);
-      this.convertUrlToTitledLink(editor, link);
+      this.convertUrlToIframe(editor, link);
     }
   }
 
   // Simulate standard paste but using editor.replaceSelection with clipboard text since we can't seem to dispatch a paste event.
-  async manualPasteUrlWithTitle(): Promise<void> {
+  async manualPasteUrlByIframe(): Promise<void> {
     const editor = this.getEditor();
     if (!editor) return;
+
+    const clipboardText = await navigator.clipboard.readText();
+    if (clipboardText == null || clipboardText == "") return;
 
     // Only attempt fetch if online
     if (!navigator.onLine) {
       editor.replaceSelection(clipboardText);
       return;
     }
-
-    var clipboardText = await navigator.clipboard.readText();
-    if (clipboardText == null || clipboardText == '') return;
 
     // If its not a URL, we return false to allow the default paste handler to take care of it.
     // Similarly, image urls don't have a meaningful <title> attribute so downloading it
@@ -97,9 +93,9 @@ export default class ObsidianOGP extends Plugin {
     }
 
     const selectedText = (
-      EditorExtensions.getSelectedText(editor) || ''
+      EditorExtensions.getSelectedText(editor) || ""
     ).trim();
-    if (selectedText && !this.settings.shouldReplaceSelection) {
+    if (selectedText && !this.settings?.shouldReplaceSelection) {
       // If there is selected text and shouldReplaceSelection is false, do not fetch title
       editor.replaceSelection(clipboardText);
       return;
@@ -114,12 +110,12 @@ export default class ObsidianOGP extends Plugin {
     }
 
     // At this point we're just pasting a link in a normal fashion, fetch its title.
-    this.convertUrlToTitledLink(editor, clipboardText);
+    this.convertUrlToIframe(editor, clipboardText);
     return;
   }
 
-  async pasteUrlWithTitle(clipboard: ClipboardEvent): Promise<void> {
-    if (!this.settings.enhanceDefaultPaste) {
+  async pasteUrlByIframe(clipboard: ClipboardEvent): Promise<void> {
+    if (!this.settings?.enhanceDefaultPaste) {
       return;
     }
 
@@ -129,8 +125,10 @@ export default class ObsidianOGP extends Plugin {
     const editor = this.getEditor();
     if (!editor) return;
 
-    const clipboardText = clipboard.clipboardData.getData('text/plain');
-    if (clipboardText == null || clipboardText == '') return;
+    if (clipboard.clipboardData == null) return;
+
+    const clipboardText = clipboard.clipboardData.getData("text/plain");
+    if (clipboardText == null || clipboardText == "") return;
 
     // If its not a URL, we return false to allow the default paste handler to take care of it.
     // Similarly, image urls don't have a meaningful <title> attribute so downloading it
@@ -140,7 +138,7 @@ export default class ObsidianOGP extends Plugin {
     }
 
     const selectedText = (
-      EditorExtensions.getSelectedText(editor) || ''
+      EditorExtensions.getSelectedText(editor) || ""
     ).trim();
     if (selectedText && !this.settings.shouldReplaceSelection) {
       // If there is selected text and shouldReplaceSelection is false, do not fetch title
@@ -160,62 +158,62 @@ export default class ObsidianOGP extends Plugin {
     }
 
     // At this point we're just pasting a link in a normal fashion, fetch its title.
-    this.convertUrlToTitledLink(editor, clipboardText);
+    this.convertUrlToIframe(editor, clipboardText);
     return;
   }
 
-  async convertUrlToTitledLink(editor: Editor, url: string): Promise<void> {
+  async convertUrlToIframe(editor: Editor, url: string): Promise<void> {
     // Generate a unique id for find/replace operations for the title.
-    const pasteId = `Fetching Title#${this.createBlockHash()}`;
+    const pasteId = this.createBlockHash();
+    const fetchingText = `[Fetching Data#${pasteId}](${url})`;
 
     // Instantly paste so you don't wonder if paste is broken
-    editor.replaceSelection(`[${pasteId}](${url})`);
+    editor.replaceSelection(fetchingText);
 
-    // Fetch title from site, replace Fetching Title with actual title
-    const ogData = await this.fetchUrlOGData(url);
-    if (
-      typeof ogData === 'undefined' ||
-      typeof ogData.ogTitle === 'undefined' ||
-      typeof ogData.ogImage === 'undefined'
-    ) {
-      return;
-    }
+    const data = await ajaxPromise({
+      url: `http://iframely.server.crestify.com/iframely?url=${url}`,
+    }).then((res) => {
+      return JSON.parse(res);
+    });
+    const imageLink = data.links[0].href || "";
 
     const text = editor.getValue();
-
-    const start = text.indexOf(pasteId);
+    const start = text.indexOf(fetchingText);
     if (start < 0) {
       console.log(
-        `Unable to find text "${pasteId}" in current editor, bailing out; link ${url}`
+        `Unable to find text "${fetchingText}" in current editor, bailing out; link ${url}`
       );
     } else {
-      const end = start + pasteId.length;
+      const end = start + fetchingText.length;
       const startPos = EditorExtensions.getEditorPositionFromIndex(text, start);
       const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
 
-      editor.replaceRange(ogData.ogTitle, startPos, endPos);
-
-      const beforeStartPos = startPos;
-      beforeStartPos.ch -= 1;
       editor.replaceRange(
-        `![|200](${ogData.ogImage})\n`,
-        beforeStartPos,
-        beforeStartPos
+        `<div class="rich-link-card-container"><a class="rich-link-card" href="${url}" target="_blank">
+  <div class="rich-link-image-container">
+    <div class="rich-link-image" style="background-image: url('${imageLink}')">
+  </div>
+  </div>
+  <div class="rich-link-card-text">
+    <h1 class="rich-link-card-title">${(data.meta.title || "")
+      .replace(/\s{3,}/g, " ")
+      .trim()}</h1>
+    <p class="rich-link-card-description">
+    ${(data.meta.description || "").replace(/\s{3,}/g, " ").trim()}
+    </p>
+    <p class="rich-link-href">
+    ${url}
+    </p>
+  </div>
+</a></div>
+`,
+        startPos,
+        endPos
       );
     }
   }
 
-  async fetchUrlOGData(url: string): Promise<OGData | undefined> {
-    try {
-      const ogData = await getPageOGData(url);
-      return ogData;
-    } catch (error) {
-      console.error(error);
-      return undefined;
-    }
-  }
-
-  private getEditor(): Editor {
+  private getEditor(): Editor | undefined {
     const activeLeaf = this.app.workspace.getActiveViewOfType(MarkdownView);
     if (activeLeaf == null) return;
     return activeLeaf.editor;
@@ -223,13 +221,17 @@ export default class ObsidianOGP extends Plugin {
 
   public getUrlFromLink(link: string): string {
     const urlRegex = new RegExp(DEFAULT_SETTINGS.linkRegex);
-    return urlRegex.exec(link)[2];
+    const regExpExecArray = urlRegex.exec(link);
+    if (regExpExecArray === null || regExpExecArray.length < 2) {
+      return "";
+    }
+    return regExpExecArray[2];
   }
 
   // Custom hashid by @shabegom
   private createBlockHash(): string {
-    let result = '';
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let result = "";
+    const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
     for (let i = 0; i < 4; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -238,7 +240,7 @@ export default class ObsidianOGP extends Plugin {
   }
 
   onunload() {
-    console.log('unloading obsidian-auto-link-title');
+    console.log("unloading obsidian-auto-link-title");
   }
 
   async loadSettings() {

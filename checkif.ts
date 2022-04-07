@@ -1,5 +1,5 @@
-import { Editor } from 'obsidian';
-import { DEFAULT_SETTINGS } from 'settings';
+import { Editor } from "obsidian";
+import { DEFAULT_SETTINGS } from "settings";
 
 export class CheckIf {
   public static isMarkdownLinkAlready(editor: Editor): boolean {
@@ -11,7 +11,7 @@ export class CheckIf {
       { ch: cursor.ch, line: cursor.line }
     );
 
-    return titleEnd == '](';
+    return titleEnd == "](";
   }
 
   public static isAfterQuote(editor: Editor): boolean {

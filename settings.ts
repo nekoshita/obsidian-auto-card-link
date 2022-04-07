@@ -1,5 +1,5 @@
-import AutoLinkTitle from 'main';
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import AutoLinkTitle from "main";
+import { App, PluginSettingTab, Setting } from "obsidian";
 
 export interface AutoLinkTitleSettings {
   regex: RegExp;
@@ -17,9 +17,9 @@ export const DEFAULT_SETTINGS: AutoLinkTitleSettings = {
   lineRegex:
     /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi,
   linkRegex:
-    /^\[([^\[\]]*)\]\((https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})\)$/i,
+    /^\[([^[\]]*)\]\((https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})\)$/i,
   linkLineRegex:
-    /\[([^\[\]]*)\]\((https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})\)/gi,
+    /\[([^[\]]*)\]\((https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})\)/gi,
   imageRegex: /\.(gif|jpe?g|tiff?|png|webp|bmp|tga|psd|ai)$/i,
   shouldReplaceSelection: true,
   enhanceDefaultPaste: true,
@@ -39,33 +39,35 @@ export class AutoLinkTitleSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
-      .setName('Enhance Default Paste')
+      .setName("Enhance Default Paste")
       .setDesc(
-        'Fetch the link title when pasting a link in the editor with the default paste command'
+        "Fetch the link title when pasting a link in the editor with the default paste command"
       )
-      .addToggle((val) =>
-        val
+      .addToggle((val) => {
+        if (!this.plugin.settings) return;
+        return val
           .setValue(this.plugin.settings.enhanceDefaultPaste)
           .onChange(async (value) => {
-            console.log(value);
+            if (!this.plugin.settings) return;
             this.plugin.settings.enhanceDefaultPaste = value;
             await this.plugin.saveSettings();
-          })
-      );
+          });
+      });
 
     new Setting(containerEl)
-      .setName('Replace Selection')
+      .setName("Replace Selection")
       .setDesc(
-        'Whether to replace a text selection with link and fetched title'
+        "Whether to replace a text selection with link and fetched title"
       )
-      .addToggle((val) =>
-        val
+      .addToggle((val) => {
+        if (!this.plugin.settings) return;
+        return val
           .setValue(this.plugin.settings.shouldReplaceSelection)
           .onChange(async (value) => {
-            console.log(value);
+            if (!this.plugin.settings) return;
             this.plugin.settings.shouldReplaceSelection = value;
             await this.plugin.saveSettings();
-          })
-      );
+          });
+      });
   }
 }

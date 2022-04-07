@@ -1,5 +1,5 @@
-import { Editor, EditorPosition } from 'obsidian';
-import { DEFAULT_SETTINGS } from 'settings';
+import { Editor, EditorPosition } from "obsidian";
+import { DEFAULT_SETTINGS } from "settings";
 
 interface WordBoundaries {
   start: { line: number; ch: number };
@@ -15,10 +15,12 @@ export class EditorExtensions {
     return editor.getSelection();
   }
 
-  private static cursorWithinBoundaries(
+  private static isCursorWithinBoundaries(
     cursor: EditorPosition,
     match: RegExpMatchArray
   ): boolean {
+    if (!match.index) return false;
+
     const startIndex = match.index;
     const endIndex = match.index + match[0].length;
 
@@ -26,7 +28,6 @@ export class EditorExtensions {
   }
 
   private static getWordBoundaries(editor: Editor): WordBoundaries {
-    let startCh, endCh: number;
     const cursor = editor.getCursor();
 
     // If its a normal URL token this is not a markdown link
@@ -37,10 +38,14 @@ export class EditorExtensions {
     const linksInLine = lineText.matchAll(DEFAULT_SETTINGS.linkLineRegex);
 
     for (const match of linksInLine) {
-      if (this.cursorWithinBoundaries(cursor, match)) {
+      if (this.isCursorWithinBoundaries(cursor, match)) {
+        const startCh = match.index ?? 0;
         return {
-          start: { line: cursor.line, ch: match.index },
-          end: { line: cursor.line, ch: match.index + match[0].length },
+          start: {
+            line: cursor.line,
+            ch: startCh,
+          },
+          end: { line: cursor.line, ch: startCh + match[0].length },
         };
       }
     }
@@ -49,10 +54,11 @@ export class EditorExtensions {
     const urlsInLine = lineText.matchAll(DEFAULT_SETTINGS.lineRegex);
 
     for (const match of urlsInLine) {
-      if (this.cursorWithinBoundaries(cursor, match)) {
+      if (this.isCursorWithinBoundaries(cursor, match)) {
+        const startCh = match.index ?? 0;
         return {
-          start: { line: cursor.line, ch: match.index },
-          end: { line: cursor.line, ch: match.index + match[0].length },
+          start: { line: cursor.line, ch: startCh },
+          end: { line: cursor.line, ch: startCh + match[0].length },
         };
       }
     }
@@ -72,7 +78,7 @@ export class EditorExtensions {
     let l = 0;
     let offset = -1;
     let r = -1;
-    for (; (r = substr.indexOf('\n', r + 1)) !== -1; l++, offset = r);
+    for (; (r = substr.indexOf("\n", r + 1)) !== -1; l++, offset = r);
     offset += 1;
 
     const ch = content.substr(offset, index - offset).length;
