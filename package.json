@@ -7,9 +7,8 @@
   "scripts": {
     "dev": "node esbuild.config.js",
     "build": "tsc -noEmit && node esbuild.config.js production",
-    "tsc": "tsc --noEmit",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --fix --ext .ts",
+    "lint": "tsc --noEmit && eslint . --ext .ts",
+    "fix": "eslint . --fix --ext .ts",
     "version": "node version-bump.js && git add manifest.json versions.json"
   },
   "repository": {
