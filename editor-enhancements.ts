@@ -19,11 +19,8 @@ export class EditorExtensions {
     cursor: EditorPosition,
     match: RegExpMatchArray
   ): boolean {
-    if (!match.index) return false;
-
-    const startIndex = match.index;
-    const endIndex = match.index + match[0].length;
-
+    const startIndex = match.index ?? 0;
+    const endIndex = startIndex + match[0].length;
     return startIndex <= cursor.ch && cursor.ch <= endIndex;
   }
 
@@ -33,7 +30,6 @@ export class EditorExtensions {
     // If its a normal URL token this is not a markdown link
     // In this case we can simply overwrite the link boundaries as-is
     const lineText = editor.getLine(cursor.line);
-
     // First check if we're in a link
     const linksInLine = lineText.matchAll(DEFAULT_SETTINGS.linkLineRegex);
 
