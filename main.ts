@@ -176,6 +176,14 @@ export default class ObsidianOGP extends Plugin {
       return JSON.parse(res);
     });
     const imageLink = data.links[0].href || "";
+    const faviconLink = data.links.find((link: { rel: string[] }) => {
+      return link.rel.includes("icon");
+    }).href;
+    const title = (data.meta.title || "").replace(/\s{3,}/g, " ").trim();
+    const description = (data.meta.description || "")
+      .replace(/\s{3,}/g, " ")
+      .trim();
+    const { hostname } = new URL(url);
 
     const text = editor.getValue();
     const start = text.indexOf(fetchingText);
@@ -189,23 +197,20 @@ export default class ObsidianOGP extends Plugin {
       const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
 
       editor.replaceRange(
-        `<div class="rich-link-card-container"><a class="rich-link-card" href="${url}" target="_blank">
-  <div class="rich-link-image-container">
-    <div class="rich-link-image" style="background-image: url('${imageLink}')">
-  </div>
-  </div>
-  <div class="rich-link-card-text">
-    <h1 class="rich-link-card-title">${(data.meta.title || "")
-      .replace(/\s{3,}/g, " ")
-      .trim()}</h1>
-    <p class="rich-link-card-description">
-    ${(data.meta.description || "").replace(/\s{3,}/g, " ").trim()}
-    </p>
-    <p class="rich-link-href">
-    ${url}
-    </p>
-  </div>
-</a></div>
+        `<div class="obsidian-ogp-card-container">
+  <a href="${url}" class="obsidian-ogp-card-card">
+    <div class="obsidian-ogp-card-main">
+      <h1 class="obsidian-ogp-card-title">${title}</h1>
+      <div class="obsidian-ogp-card-description">${description}</div>
+      <div class="obsidian-ogp-card-host">
+        <img src="${faviconLink}" width="14" height="14" class="obsidian-ogp-card-favicon" alt="">${hostname}
+      </div>
+    </div>
+    <div class="obsidian-ogp-card-thumbnail">
+      <img src="${imageLink}" alt="" class="obsidian-ogp-card-thumbnail-img">
+    </div>
+  </a>
+</div>
 `,
         startPos,
         endPos
