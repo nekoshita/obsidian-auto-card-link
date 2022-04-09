@@ -1,17 +1,17 @@
 import AutoLinkTitle from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 
-export interface AutoLinkTitleSettings {
+export interface ObsidianOGPSettings {
   regex: RegExp;
   lineRegex: RegExp;
   linkRegex: RegExp;
   linkLineRegex: RegExp;
   imageRegex: RegExp;
-  shouldReplaceSelection: boolean;
+  showInMenuItem: boolean;
   enhanceDefaultPaste: boolean;
 }
 
-export const DEFAULT_SETTINGS: AutoLinkTitleSettings = {
+export const DEFAULT_SETTINGS: ObsidianOGPSettings = {
   regex:
     /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/i,
   lineRegex:
@@ -21,11 +21,11 @@ export const DEFAULT_SETTINGS: AutoLinkTitleSettings = {
   linkLineRegex:
     /\[([^[\]]*)\]\((https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})\)/gi,
   imageRegex: /\.(gif|jpe?g|tiff?|png|webp|bmp|tga|psd|ai)$/i,
-  shouldReplaceSelection: true,
+  showInMenuItem: true,
   enhanceDefaultPaste: true,
 };
 
-export class AutoLinkTitleSettingTab extends PluginSettingTab {
+export class ObsidianOGPSettingTab extends PluginSettingTab {
   plugin: AutoLinkTitle;
 
   constructor(app: App, plugin: AutoLinkTitle) {
@@ -41,7 +41,7 @@ export class AutoLinkTitleSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Enhance Default Paste")
       .setDesc(
-        "Fetch the link title when pasting a link in the editor with the default paste command"
+        "Fetch the link OGP metadata when pasting a link in the editor with the default paste command"
       )
       .addToggle((val) => {
         if (!this.plugin.settings) return;
@@ -55,17 +55,15 @@ export class AutoLinkTitleSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName("Replace Selection")
-      .setDesc(
-        "Whether to replace a text selection with link and fetched title"
-      )
+      .setName("Show in menu item")
+      .setDesc("Whether to add commands in right click menu items")
       .addToggle((val) => {
         if (!this.plugin.settings) return;
         return val
-          .setValue(this.plugin.settings.shouldReplaceSelection)
+          .setValue(this.plugin.settings.showInMenuItem)
           .onChange(async (value) => {
             if (!this.plugin.settings) return;
-            this.plugin.settings.shouldReplaceSelection = value;
+            this.plugin.settings.showInMenuItem = value;
             await this.plugin.saveSettings();
           });
       });

@@ -2,18 +2,6 @@ import { Editor } from "obsidian";
 import { DEFAULT_SETTINGS } from "settings";
 
 export class CheckIf {
-  public static isMarkdownLinkAlready(editor: Editor): boolean {
-    const cursor = editor.getCursor();
-
-    // Check if the characters before the url are ]( to indicate a markdown link
-    const titleEnd = editor.getRange(
-      { ch: cursor.ch - 2, line: cursor.line },
-      { ch: cursor.ch, line: cursor.line }
-    );
-
-    return titleEnd == "](";
-  }
-
   public static isAfterQuote(editor: Editor): boolean {
     const cursor = editor.getCursor();
 

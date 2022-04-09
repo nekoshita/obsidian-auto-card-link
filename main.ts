@@ -1,8 +1,8 @@
 import { EditorExtensions } from "./editor-enhancements";
 import { Plugin, MarkdownView, Editor } from "obsidian";
 import {
-  AutoLinkTitleSettings,
-  AutoLinkTitleSettingTab,
+  ObsidianOGPSettings,
+  ObsidianOGPSettingTab,
   DEFAULT_SETTINGS,
 } from "./settings";
 import { CheckIf } from "checkif";
@@ -12,33 +12,29 @@ interface PasteFunction {
 }
 
 export default class ObsidianOGP extends Plugin {
-  settings?: AutoLinkTitleSettings;
+  settings?: ObsidianOGPSettings;
   pasteFunction?: PasteFunction;
 
   async onload() {
-    console.log("loading obsidian-auto-link-title");
+    console.log("loading obsidian-ogp");
     await this.loadSettings();
 
     // Listen to paste event
     this.pasteFunction = this.pasteUrlByIframe.bind(this);
 
     this.addCommand({
-      id: "auto-link-title-paste",
-      name: "Paste URL and auto fetch title",
+      id: "obsidian-ogp-paste-and-enhance",
+      name: "Paste URL and enhance with OGP metadata",
       callback: () => {
         this.manualPasteUrlByIframe();
       },
       hotkeys: [],
     });
 
-    this.registerEvent(
-      this.app.workspace.on("editor-paste", this.pasteFunction)
-    );
-
     this.addCommand({
-      id: "enhance-url-with-title",
-      name: "Enhance existing URL with link and title",
-      callback: () => this.addTitleToLink(),
+      id: "obsidian-ogp-enhance-existing-url",
+      name: "Enhance existing URL with OGP metadata",
+      callback: () => this.addOGPMetadataToLink(),
       hotkeys: [
         {
           modifiers: ["Mod", "Shift"],
@@ -47,10 +43,36 @@ export default class ObsidianOGP extends Plugin {
       ],
     });
 
-    this.addSettingTab(new AutoLinkTitleSettingTab(this.app, this));
+    this.registerEvent(
+      this.app.workspace.on("editor-paste", this.pasteFunction)
+    );
+
+    this.registerEvent(
+      this.app.workspace.on("editor-menu", (menu) => {
+        if (!this.settings?.showInMenuItem) return;
+
+        menu.addItem((item) => {
+          item
+            .setTitle("Paste URL and enhance")
+            .setIcon("paste")
+            .onClick(() => this.manualPasteUrlByIframe());
+        });
+
+        menu.addItem((item) => {
+          item
+            .setTitle("Enhance selected URL with OGP metadata")
+            .setIcon("link")
+            .onClick(() => this.addOGPMetadataToLink());
+        });
+
+        return;
+      })
+    );
+
+    this.addSettingTab(new ObsidianOGPSettingTab(this.app, this));
   }
 
-  addTitleToLink(): void {
+  addOGPMetadataToLink(): void {
     // Only attempt fetch if online
     if (!navigator.onLine) return;
     const editor = this.getEditor();
@@ -59,12 +81,9 @@ export default class ObsidianOGP extends Plugin {
       EditorExtensions.getSelectedText(editor) || ""
     ).trim();
 
-    // If the cursor is on a raw html link, convert to a markdown link and fetch title
     if (CheckIf.isUrl(selectedText)) {
       this.convertUrlToIframe(editor, selectedText);
-    }
-    // If the cursor is on the URL part of a markdown link, fetch title and replace existing link title
-    else if (CheckIf.isLinkedUrl(selectedText)) {
+    } else if (CheckIf.isLinkedUrl(selectedText)) {
       const link = this.getUrlFromLink(selectedText);
       this.convertUrlToIframe(editor, link);
     }
@@ -85,31 +104,13 @@ export default class ObsidianOGP extends Plugin {
     }
 
     // If its not a URL, we return false to allow the default paste handler to take care of it.
-    // Similarly, image urls don't have a meaningful <title> attribute so downloading it
-    // to fetch the title is a waste of bandwidth.
+    // Similarly, image urls don't have a meaningful attribute so downloading it
+    // to fetching metadata is a waste of bandwidth.
     if (!CheckIf.isUrl(clipboardText) || CheckIf.isImage(clipboardText)) {
       editor.replaceSelection(clipboardText);
       return;
     }
 
-    const selectedText = (
-      EditorExtensions.getSelectedText(editor) || ""
-    ).trim();
-    if (selectedText && !this.settings?.shouldReplaceSelection) {
-      // If there is selected text and shouldReplaceSelection is false, do not fetch title
-      editor.replaceSelection(clipboardText);
-      return;
-    }
-
-    // If it looks like we're pasting the url into a markdown link already, don't fetch title
-    // as the user has already probably put a meaningful title, also it would lead to the title
-    // being inside the link.
-    if (CheckIf.isMarkdownLinkAlready(editor) || CheckIf.isAfterQuote(editor)) {
-      editor.replaceSelection(clipboardText);
-      return;
-    }
-
-    // At this point we're just pasting a link in a normal fashion, fetch its title.
     this.convertUrlToIframe(editor, clipboardText);
     return;
   }
@@ -131,17 +132,9 @@ export default class ObsidianOGP extends Plugin {
     if (clipboardText == null || clipboardText == "") return;
 
     // If its not a URL, we return false to allow the default paste handler to take care of it.
-    // Similarly, image urls don't have a meaningful <title> attribute so downloading it
-    // to fetch the title is a waste of bandwidth.
+    // Similarly, image urls don't have a meaningful attribute so downloading it
+    // to fetching metadata is a waste of bandwidth.
     if (!CheckIf.isUrl(clipboardText) || CheckIf.isImage(clipboardText)) {
-      return;
-    }
-
-    const selectedText = (
-      EditorExtensions.getSelectedText(editor) || ""
-    ).trim();
-    if (selectedText && !this.settings.shouldReplaceSelection) {
-      // If there is selected text and shouldReplaceSelection is false, do not fetch title
       return;
     }
 
@@ -149,21 +142,12 @@ export default class ObsidianOGP extends Plugin {
     clipboard.stopPropagation();
     clipboard.preventDefault();
 
-    // If it looks like we're pasting the url into a markdown link already, don't fetch title
-    // as the user has already probably put a meaningful title, also it would lead to the title
-    // being inside the link.
-    if (CheckIf.isMarkdownLinkAlready(editor) || CheckIf.isAfterQuote(editor)) {
-      editor.replaceSelection(clipboardText);
-      return;
-    }
-
-    // At this point we're just pasting a link in a normal fashion, fetch its title.
     this.convertUrlToIframe(editor, clipboardText);
     return;
   }
 
   async convertUrlToIframe(editor: Editor, url: string): Promise<void> {
-    // Generate a unique id for find/replace operations for the title.
+    // Generate a unique id for find/replace operations.
     const pasteId = this.createBlockHash();
     const fetchingText = `[Fetching Data#${pasteId}](${url})`;
 
@@ -245,7 +229,7 @@ export default class ObsidianOGP extends Plugin {
   }
 
   onunload() {
-    console.log("unloading obsidian-auto-link-title");
+    console.log("unloading obsidian-ogp");
   }
 
   async loadSettings() {
