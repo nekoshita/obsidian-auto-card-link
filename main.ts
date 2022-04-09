@@ -160,9 +160,10 @@ export default class ObsidianOGP extends Plugin {
       return JSON.parse(res);
     });
     const imageLink = data.links[0].href || "";
-    const faviconLink = data.links.find((link: { rel: string[] }) => {
-      return link.rel.includes("icon");
-    }).href;
+    const faviconLink =
+      data.links.find((link: { rel: string[] }) => {
+        return link.rel.includes("icon");
+      })?.href ?? "";
     const title = (data.meta.title || "").replace(/\s{3,}/g, " ").trim();
     const description = (data.meta.description || "")
       .replace(/\s{3,}/g, " ")
