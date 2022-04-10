@@ -31,7 +31,7 @@ export class ogpLinkProcessor {
       );
     }
 
-    if (!yaml.url || !yaml.title) {
+    if (!yaml || !yaml.url || !yaml.title) {
       throw new NoRequiredParamsError(
         "required params[url, title] are not found."
       );
