@@ -4,8 +4,9 @@ import {
   ObsidianOGPSettings,
   ObsidianOGPSettingTab,
   DEFAULT_SETTINGS,
-} from "./settings";
+} from "settings";
 import { CheckIf } from "checkif";
+import { ogpLinkProcessor } from "ogp_link_processor";
 
 interface PasteFunction {
   (this: HTMLElement, ev: ClipboardEvent): void;
@@ -18,6 +19,12 @@ export default class ObsidianOGP extends Plugin {
   async onload() {
     console.log("loading obsidian-ogp");
     await this.loadSettings();
+
+    // for ogp_link rendering
+    this.registerMarkdownCodeBlockProcessor("ogplink", async (source, el) => {
+      const processor = new ogpLinkProcessor(this.app);
+      await processor.run(source, el);
+    });
 
     // Listen to paste event
     this.pasteFunction = this.pasteUrlByIframe.bind(this);
@@ -182,20 +189,14 @@ export default class ObsidianOGP extends Plugin {
       const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
 
       editor.replaceRange(
-        `<div class="obsidian-ogp-card-container">
-  <a href="${url}" class="obsidian-ogp-card-card">
-    <div class="obsidian-ogp-card-main">
-      <h1 class="obsidian-ogp-card-title">${title}</h1>
-      <div class="obsidian-ogp-card-description">${description}</div>
-      <div class="obsidian-ogp-card-host">
-        <img src="${faviconLink}" width="14" height="14" class="obsidian-ogp-card-favicon" alt="">${hostname}
-      </div>
-    </div>
-    <div class="obsidian-ogp-card-thumbnail">
-      <img src="${imageLink}" alt="" class="obsidian-ogp-card-thumbnail-img">
-    </div>
-  </a>
-</div>
+        `\`\`\`ogplink
+url: ${url}
+title: ${title}
+description: ${description}
+host: ${hostname}
+favicon: ${faviconLink}
+image: ${imageLink} 
+\`\`\`
 `,
         startPos,
         endPos
