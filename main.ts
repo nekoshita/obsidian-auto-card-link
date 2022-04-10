@@ -189,7 +189,8 @@ export default class ObsidianOGP extends Plugin {
       const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
 
       editor.replaceRange(
-        `\`\`\`ogplink
+        `
+\`\`\`ogplink
 url: ${url}
 title: ${title}
 description: ${description}

@@ -7,6 +7,17 @@
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
+.obsidian-ogp-error-container {
+    max-width: 780px;
+    margin: 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background-color: rgb(255, 246, 228);
+    padding: 10px;
+}
+
+
 .obsidian-ogp-card {
     display: flex;
     align-items: center;
