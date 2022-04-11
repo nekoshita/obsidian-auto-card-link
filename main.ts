@@ -171,10 +171,8 @@ export default class ObsidianOGP extends Plugin {
       data.links.find((link: { rel: string[] }) => {
         return link.rel.includes("icon");
       })?.href ?? "";
-    const title = (data.meta.title || "").replace(/\s{3,}/g, " ").trim();
-    const description = (data.meta.description || "")
-      .replace(/\s{3,}/g, " ")
-      .trim();
+    const title = (data.meta.title || "").replace(/"/g, '\\"');
+    const description = (data.meta.description || "").replace(/"/g, '\\"');
     const { hostname } = new URL(url);
 
     const text = editor.getValue();
