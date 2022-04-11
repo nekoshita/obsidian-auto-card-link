@@ -192,11 +192,11 @@ export default class ObsidianOGP extends Plugin {
         `
 \`\`\`ogplink
 url: ${url}
-title: ${title}
-description: ${description}
+title: "${title}"
+description: "${description}"
 host: ${hostname}
 favicon: ${faviconLink}
-image: ${imageLink} 
+image: ${imageLink}
 \`\`\`
 `,
         startPos,
