@@ -2,15 +2,7 @@ import { App } from "obsidian";
 import * as Yaml from "yaml";
 
 import { YamlParseError, NoRequiredParamsError } from "errors";
-
-interface linkMetadata {
-  url: string;
-  title: string;
-  description?: string;
-  host?: string;
-  favicon?: string;
-  image?: string;
-}
+import { linkMetadata } from "interfaces";
 
 export class ogpLinkProcessor {
   app: App;

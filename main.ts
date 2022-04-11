@@ -1,5 +1,5 @@
 import { EditorExtensions } from "./editor-enhancements";
-import { Plugin, MarkdownView, Editor } from "obsidian";
+import { Plugin, MarkdownView, Editor, Notice } from "obsidian";
 import {
   ObsidianOGPSettings,
   ObsidianOGPSettingTab,
@@ -7,6 +7,7 @@ import {
 } from "settings";
 import { CheckIf } from "checkif";
 import { ogpLinkProcessor } from "ogp_link_processor";
+import { linkMetadata } from "interfaces";
 
 interface PasteFunction {
   (this: HTMLElement, ev: ClipboardEvent): void;
@@ -89,10 +90,10 @@ export default class ObsidianOGP extends Plugin {
     ).trim();
 
     if (CheckIf.isUrl(selectedText)) {
-      this.convertUrlToIframe(editor, selectedText);
+      this.convertUrlToCodeBlock(editor, selectedText);
     } else if (CheckIf.isLinkedUrl(selectedText)) {
       const link = this.getUrlFromLink(selectedText);
-      this.convertUrlToIframe(editor, link);
+      this.convertUrlToCodeBlock(editor, link);
     }
   }
 
@@ -118,7 +119,7 @@ export default class ObsidianOGP extends Plugin {
       return;
     }
 
-    this.convertUrlToIframe(editor, clipboardText);
+    this.convertUrlToCodeBlock(editor, clipboardText);
     return;
   }
 
@@ -149,11 +150,13 @@ export default class ObsidianOGP extends Plugin {
     clipboard.stopPropagation();
     clipboard.preventDefault();
 
-    this.convertUrlToIframe(editor, clipboardText);
+    this.convertUrlToCodeBlock(editor, clipboardText);
     return;
   }
 
-  async convertUrlToIframe(editor: Editor, url: string): Promise<void> {
+  async convertUrlToCodeBlock(editor: Editor, url: string): Promise<void> {
+    const selectedText = editor.getSelection();
+
     // Generate a unique id for find/replace operations.
     const pasteId = this.createBlockHash();
     const fetchingText = `[Fetching Data#${pasteId}](${url})`;
@@ -161,46 +164,78 @@ export default class ObsidianOGP extends Plugin {
     // Instantly paste so you don't wonder if paste is broken
     editor.replaceSelection(fetchingText);
 
-    const data = await ajaxPromise({
-      url: `http://iframely.server.crestify.com/iframely?url=${url}`,
-    }).then((res) => {
-      return JSON.parse(res);
-    });
-    const imageLink = data.links[0].href || "";
-    const faviconLink =
-      data.links.find((link: { rel: string[] }) => {
-        return link.rel.includes("icon");
-      })?.href ?? "";
-    const title = (data.meta.title || "").replace(/"/g, '\\"');
-    const description = (data.meta.description || "").replace(/"/g, '\\"');
-    const { hostname } = new URL(url);
+    const linkMetadata = await this.fetchLinkMetadata(url);
 
     const text = editor.getValue();
     const start = text.indexOf(fetchingText);
+
     if (start < 0) {
       console.log(
         `Unable to find text "${fetchingText}" in current editor, bailing out; link ${url}`
       );
-    } else {
-      const end = start + fetchingText.length;
-      const startPos = EditorExtensions.getEditorPositionFromIndex(text, start);
-      const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
+      return;
+    }
 
-      editor.replaceRange(
-        `
+    const end = start + fetchingText.length;
+    const startPos = EditorExtensions.getEditorPositionFromIndex(text, start);
+    const endPos = EditorExtensions.getEditorPositionFromIndex(text, end);
+
+    // if failed to link metadata, show notification and revert to selected text or url
+    if (!linkMetadata) {
+      new Notice("Couldn't fetch link metadata");
+      editor.replaceRange(selectedText || url, startPos, endPos);
+      return;
+    }
+
+    editor.replaceRange(
+      `
 \`\`\`ogplink
-url: ${url}
-title: "${title}"
-description: "${description}"
-host: ${hostname}
-favicon: ${faviconLink}
-image: ${imageLink}
+url: ${linkMetadata.url}
+title: "${linkMetadata.title}"
+description: "${linkMetadata.description}"
+host: ${linkMetadata.host}
+favicon: ${linkMetadata.favicon}
+image: ${linkMetadata.image}
 \`\`\`
 `,
-        startPos,
-        endPos
-      );
+      startPos,
+      endPos
+    );
+  }
+
+  async fetchLinkMetadata(url: string): Promise<linkMetadata | undefined> {
+    const data = await ajaxPromise({
+      url: `http://iframely.server.crestify.com/iframely?url=${url}`,
+    })
+      .then((res) => {
+        return JSON.parse(res);
+      })
+      .catch((error) => {
+        console.log(error);
+        return;
+      });
+
+    if (!data || data.links.length == 0 || !data.meta.title) {
+      return;
     }
+
+    const image = data.links[0].href || "";
+    const favicon =
+      data.links.find((link: { rel: string[] }) => {
+        return link.rel.includes("icon");
+      })?.href ?? "";
+    const title = data.meta.title.replace(/"/g, '\\"');
+    const description = (data.meta.description || "").replace(/"/g, '\\"');
+    const { hostname } = new URL(url);
+
+    return {
+      url: url,
+      title: title,
+      description: description,
+      host: hostname,
+      favicon: favicon,
+      image: image,
+    };
   }
 
   private getEditor(): Editor | undefined {
