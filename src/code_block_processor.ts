@@ -94,15 +94,17 @@ export class CodeBlockProcessor {
     hostEl.addClass("obsidian-ogp-host");
     mainEl.appendChild(hostEl);
 
-    const faviconEl = document.createElement("img");
-    faviconEl.addClass("obsidian-ogp-favicon");
     if (data.favicon) {
-      faviconEl.setAttr("src", data.favicon);
+      const faviconEl = document.createElement("img");
+      faviconEl.addClass("obsidian-ogp-favicon");
+      if (data.favicon) {
+        faviconEl.setAttr("src", data.favicon);
+      }
+      faviconEl.setAttr("width", 14);
+      faviconEl.setAttr("height", 14);
+      faviconEl.setAttr("alt", "");
+      hostEl.appendChild(faviconEl);
     }
-    faviconEl.setAttr("width", 14);
-    faviconEl.setAttr("height", 14);
-    faviconEl.setAttr("alt", "");
-    hostEl.appendChild(faviconEl);
 
     const hostNameEl = document.createElement("span");
     if (data.host) {
