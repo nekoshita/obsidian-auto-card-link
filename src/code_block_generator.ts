@@ -82,8 +82,14 @@ export class CodeBlockGenerator {
       data.links.find((link: { rel: string[] }) => {
         return link.rel.includes("icon");
       })?.href ?? "";
-    const title = data.meta.title.replace(/"/g, '\\"');
-    const description = (data.meta.description || "").replace(/"/g, '\\"');
+    const title = data.meta.title
+      .replace(/\r\n|\n|\r/g, "")
+      .replace(/"/g, '\\"')
+      .trim();
+    const description = (data.meta.description || "")
+      .replace(/\r\n|\n|\r/g, "")
+      .replace(/"/g, '\\"')
+      .trim();
     const { hostname } = new URL(url);
 
     return {
