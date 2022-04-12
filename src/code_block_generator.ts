@@ -77,20 +77,24 @@ export class CodeBlockGenerator {
       return;
     }
 
-    const image = data.links[0].href || "";
-    const favicon =
-      data.links.find((link: { rel: string[] }) => {
-        return link.rel.includes("icon");
-      })?.href ?? "";
+    const favicon = data.links.find((link: { rel: string[] }) => {
+      return link.rel.includes("icon");
+    })?.href;
     const title = data.meta.title
-      .replace(/\r\n|\n|\r/g, "")
+      ?.replace(/\r\n|\n|\r/g, "")
       .replace(/"/g, '\\"')
       .trim();
-    const description = (data.meta.description || "")
-      .replace(/\r\n|\n|\r/g, "")
+    const description = data.meta.description
+      ?.replace(/\r\n|\n|\r/g, "")
       .replace(/"/g, '\\"')
       .trim();
     const { hostname } = new URL(url);
+    const image = ((): string | undefined => {
+      if (data.links.length == 0) return;
+      const href = data.links[0].href;
+      if (favicon == href) return;
+      return href;
+    })();
 
     return {
       url: url,
