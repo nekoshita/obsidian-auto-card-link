@@ -1,5 +1,6 @@
-import AutoLinkTitle from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
+
+import ObsidianOGP from "src/main";
 
 export interface ObsidianOGPSettings {
   regex: RegExp;
@@ -26,9 +27,9 @@ export const DEFAULT_SETTINGS: ObsidianOGPSettings = {
 };
 
 export class ObsidianOGPSettingTab extends PluginSettingTab {
-  plugin: AutoLinkTitle;
+  plugin: ObsidianOGP;
 
-  constructor(app: App, plugin: AutoLinkTitle) {
+  constructor(app: App, plugin: ObsidianOGP) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -41,7 +42,7 @@ export class ObsidianOGPSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Enhance Default Paste")
       .setDesc(
-        "Fetch the link OGP metadata when pasting a link in the editor with the default paste command"
+        "Fetch the link metadata when pasting a url in the editor with the default paste command"
       )
       .addToggle((val) => {
         if (!this.plugin.settings) return;
@@ -55,7 +56,7 @@ export class ObsidianOGPSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName("Show in menu item")
+      .setName("Add commands in menu item")
       .setDesc("Whether to add commands in right click menu items")
       .addToggle((val) => {
         if (!this.plugin.settings) return;

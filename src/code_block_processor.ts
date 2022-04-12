@@ -1,17 +1,32 @@
 import { App } from "obsidian";
 import * as Yaml from "yaml";
 
-import { YamlParseError, NoRequiredParamsError } from "errors";
-import { LinkMetadata } from "interfaces";
+import { YamlParseError, NoRequiredParamsError } from "src/errors";
+import { LinkMetadata } from "src/interfaces";
 
-export class ogpLinkProcessor {
+export class CodeBlockProcessor {
   app: App;
 
   constructor(app: App) {
     this.app = app;
   }
 
-  getURLMetaData(source: string): LinkMetadata {
+  async run(source: string, el: HTMLElement) {
+    try {
+      const data = this.parseLinkMetadataFromYaml(source);
+      el.appendChild(this.genLinkEl(data));
+    } catch (error) {
+      if (error instanceof NoRequiredParamsError) {
+        el.appendChild(this.genErrorEl(error.message));
+      } else if (error instanceof YamlParseError) {
+        el.appendChild(this.genErrorEl(error.message));
+      } else {
+        console.log("Code Block: ogplink unknown error", error);
+      }
+    }
+  }
+
+  private parseLinkMetadataFromYaml(source: string): LinkMetadata {
     let yaml: Partial<LinkMetadata>;
 
     try {
@@ -39,7 +54,7 @@ export class ogpLinkProcessor {
     };
   }
 
-  genErrorEl(errorMsg: string): HTMLElement {
+  private genErrorEl(errorMsg: string): HTMLElement {
     const containerEl = document.createElement("div");
     containerEl.addClass("obsidian-ogp-error-container");
 
@@ -50,7 +65,7 @@ export class ogpLinkProcessor {
     return containerEl;
   }
 
-  genLinkEl(data: LinkMetadata): HTMLElement {
+  private genLinkEl(data: LinkMetadata): HTMLElement {
     const containerEl = document.createElement("div");
     containerEl.addClass("obsidian-ogp-container");
 
@@ -108,20 +123,5 @@ export class ogpLinkProcessor {
     thumbnailEl.appendChild(thumbnailImgEl);
 
     return containerEl;
-  }
-
-  async run(source: string, el: HTMLElement) {
-    try {
-      const data = this.getURLMetaData(source);
-      el.appendChild(this.genLinkEl(data));
-    } catch (error) {
-      if (error instanceof NoRequiredParamsError) {
-        el.appendChild(this.genErrorEl(error.message));
-      } else if (error instanceof YamlParseError) {
-        el.appendChild(this.genErrorEl(error.message));
-      } else {
-        console.log("Code Block: ogplink unknown error", error);
-      }
-    }
   }
 }

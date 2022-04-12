@@ -1,5 +1,6 @@
 import { Editor, EditorPosition } from "obsidian";
-import { DEFAULT_SETTINGS } from "settings";
+
+import { DEFAULT_SETTINGS } from "src/settings";
 
 interface WordBoundaries {
   start: { line: number; ch: number };
