@@ -1,4 +1,4 @@
-export interface linkMetadata {
+export interface LinkMetadata {
   url: string;
   title: string;
   description?: string;

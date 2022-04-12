@@ -7,7 +7,7 @@ import {
 } from "settings";
 import { CheckIf } from "checkif";
 import { ogpLinkProcessor } from "ogp_link_processor";
-import { linkMetadata } from "interfaces";
+import { LinkMetadata } from "interfaces";
 
 interface PasteFunction {
   (this: HTMLElement, ev: ClipboardEvent): void;
@@ -186,24 +186,26 @@ export default class ObsidianOGP extends Plugin {
       editor.replaceRange(selectedText || url, startPos, endPos);
       return;
     }
-
-    editor.replaceRange(
-      `
-\`\`\`ogplink
-url: ${linkMetadata.url}
-title: "${linkMetadata.title}"
-description: "${linkMetadata.description}"
-host: ${linkMetadata.host}
-favicon: ${linkMetadata.favicon}
-image: ${linkMetadata.image}
-\`\`\`
-`,
-      startPos,
-      endPos
-    );
+    editor.replaceRange(this.genCodeBlock(linkMetadata), startPos, endPos);
   }
 
-  async fetchLinkMetadata(url: string): Promise<linkMetadata | undefined> {
+  private genCodeBlock(linkMetadata: LinkMetadata): string {
+    const codeBlockTexts = ["\n```ogplink"];
+    codeBlockTexts.push(`url: ${linkMetadata.url}`);
+    codeBlockTexts.push(`title: "${linkMetadata.title}"`);
+    if (linkMetadata.description)
+      codeBlockTexts.push(`description: "${linkMetadata.description}"`);
+    if (linkMetadata.host) codeBlockTexts.push(`host: ${linkMetadata.host}`);
+    if (linkMetadata.favicon)
+      codeBlockTexts.push(`favicon: ${linkMetadata.favicon}`);
+    if (linkMetadata.image) codeBlockTexts.push(`image: ${linkMetadata.image}`);
+    codeBlockTexts.push("```\n");
+    return codeBlockTexts.join("\n");
+  }
+
+  private async fetchLinkMetadata(
+    url: string
+  ): Promise<LinkMetadata | undefined> {
     const data = await ajaxPromise({
       url: `http://iframely.server.crestify.com/iframely?url=${url}`,
     })
@@ -244,7 +246,7 @@ image: ${linkMetadata.image}
     return activeLeaf.editor;
   }
 
-  public getUrlFromLink(link: string): string {
+  private getUrlFromLink(link: string): string {
     const urlRegex = new RegExp(DEFAULT_SETTINGS.linkRegex);
     const regExpExecArray = urlRegex.exec(link);
     if (regExpExecArray === null || regExpExecArray.length < 2) {

@@ -2,7 +2,7 @@ import { App } from "obsidian";
 import * as Yaml from "yaml";
 
 import { YamlParseError, NoRequiredParamsError } from "errors";
-import { linkMetadata } from "interfaces";
+import { LinkMetadata } from "interfaces";
 
 export class ogpLinkProcessor {
   app: App;
@@ -11,11 +11,11 @@ export class ogpLinkProcessor {
     this.app = app;
   }
 
-  getURLMetaData(source: string): linkMetadata {
-    let yaml: Partial<linkMetadata>;
+  getURLMetaData(source: string): LinkMetadata {
+    let yaml: Partial<LinkMetadata>;
 
     try {
-      yaml = Yaml.parse(source) as linkMetadata;
+      yaml = Yaml.parse(source) as Partial<LinkMetadata>;
     } catch (error) {
       console.log(error);
       throw new YamlParseError(
@@ -50,7 +50,7 @@ export class ogpLinkProcessor {
     return containerEl;
   }
 
-  genLinkEl(data: linkMetadata): HTMLElement {
+  genLinkEl(data: LinkMetadata): HTMLElement {
     const containerEl = document.createElement("div");
     containerEl.addClass("obsidian-ogp-container");
 
