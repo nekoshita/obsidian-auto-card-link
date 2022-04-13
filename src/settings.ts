@@ -1,8 +1,8 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 
-import ObsidianOGP from "src/main";
+import ObsidianAutoCardLink from "src/main";
 
-export interface ObsidianOGPSettings {
+export interface ObsidianAutoCardLinkSettings {
   regex: RegExp;
   lineRegex: RegExp;
   linkRegex: RegExp;
@@ -12,7 +12,7 @@ export interface ObsidianOGPSettings {
   enhanceDefaultPaste: boolean;
 }
 
-export const DEFAULT_SETTINGS: ObsidianOGPSettings = {
+export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
   regex:
     /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/i,
   lineRegex:
@@ -26,10 +26,10 @@ export const DEFAULT_SETTINGS: ObsidianOGPSettings = {
   enhanceDefaultPaste: true,
 };
 
-export class ObsidianOGPSettingTab extends PluginSettingTab {
-  plugin: ObsidianOGP;
+export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
+  plugin: ObsidianAutoCardLink;
 
-  constructor(app: App, plugin: ObsidianOGP) {
+  constructor(app: App, plugin: ObsidianAutoCardLink) {
     super(app, plugin);
     this.plugin = plugin;
   }
