@@ -7,9 +7,8 @@
   "scripts": {
     "dev": "node esbuild.config.js",
     "build": "tsc -noEmit && node esbuild.config.js production",
-    "tsc": "tsc --noEmit",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --fix --ext .ts",
+    "lint": "tsc --noEmit && eslint . --ext .ts",
+    "fix": "eslint . --fix --ext .ts",
     "version": "node version-bump.js && git add manifest.json versions.json"
   },
   "repository": {
@@ -23,12 +22,17 @@
   },
   "homepage": "https://github.com/nekoshita/obsidian-ogp#readme",
   "devDependencies": {
+    "@types/node": "^17.0.23",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
     "builtin-modules": "^3.2.0",
     "esbuild": "^0.14.28",
     "eslint": "^8.12.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "obsidian": "^0.14.3",
-    "typescript": "^4.6.3"
+    "prettier": "^2.6.1",
+    "typescript": "^4.6.3",
+    "yaml": "^2.0.0"
   }
 }
