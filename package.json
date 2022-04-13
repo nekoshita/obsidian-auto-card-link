@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-ogp",
+  "name": "obsidian-auto-card-link",
   "version": "0.1.0",
   "description": "",
   "main": "main.js",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nekoshita/obsidian-ogp.git"
+    "url": "git+https://github.com/nekoshita/obsidian-auto-card-link.git"
   },
   "author": "Nekoshita Yuki",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nekoshita/obsidian-ogp/issues"
+    "url": "https://github.com/nekoshita/obsidian-auto-card-link/issues"
   },
-  "homepage": "https://github.com/nekoshita/obsidian-ogp#readme",
+  "homepage": "https://github.com/nekoshita/obsidian-auto-card-link#readme",
   "devDependencies": {
     "@types/node": "^17.0.23",
     "@typescript-eslint/eslint-plugin": "^5.17.0",

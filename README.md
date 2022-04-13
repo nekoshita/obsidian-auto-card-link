@@ -1,4 +1,4 @@
-# obsidian-ogp
+# obsidian-auto-card-link
 
 This is a sample plugin for Obsidian (https://obsidian.md).
 

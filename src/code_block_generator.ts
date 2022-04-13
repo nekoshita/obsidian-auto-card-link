@@ -46,7 +46,7 @@ export class CodeBlockGenerator {
   }
 
   genCodeBlock(linkMetadata: LinkMetadata): string {
-    const codeBlockTexts = ["\n```ogplink"];
+    const codeBlockTexts = ["\n```clink"];
     codeBlockTexts.push(`url: ${linkMetadata.url}`);
     codeBlockTexts.push(`title: "${linkMetadata.title}"`);
     if (linkMetadata.description)

@@ -1,8 +1,8 @@
 import { Plugin, MarkdownView, Editor } from "obsidian";
 
 import {
-  ObsidianOGPSettings,
-  ObsidianOGPSettingTab,
+  ObsidianAutoCardLinkSettings,
+  ObsidianAutoCardLinkSettingTab,
   DEFAULT_SETTINGS,
 } from "src/settings";
 import { EditorExtensions } from "src/editor_enhancements";
@@ -14,15 +14,15 @@ interface PasteFunction {
   (this: HTMLElement, ev: ClipboardEvent): void;
 }
 
-export default class ObsidianOGP extends Plugin {
-  settings?: ObsidianOGPSettings;
+export default class ObsidianAutoCardLink extends Plugin {
+  settings?: ObsidianAutoCardLinkSettings;
   pasteFunction?: PasteFunction;
 
   async onload() {
-    console.log("loading obsidian-ogp");
+    console.log("loading obsidian-auto-card-link");
     await this.loadSettings();
 
-    this.registerMarkdownCodeBlockProcessor("ogplink", async (source, el) => {
+    this.registerMarkdownCodeBlockProcessor("clink", async (source, el) => {
       const processor = new CodeBlockProcessor(this.app);
       await processor.run(source, el);
     });
@@ -30,7 +30,7 @@ export default class ObsidianOGP extends Plugin {
     this.pasteFunction = this.pasteAndEnhanceURL.bind(this);
 
     this.addCommand({
-      id: "obsidian-ogp-paste-and-enhance",
+      id: "obsidian-auto-card-link-paste-and-enhance",
       name: "Paste URL and enhance to card link",
       callback: () => {
         this.manualPasteAndEnhanceURL();
@@ -39,7 +39,7 @@ export default class ObsidianOGP extends Plugin {
     });
 
     this.addCommand({
-      id: "obsidian-ogp-enhance-selected-url",
+      id: "obsidian-auto-card-link-enhance-selected-url",
       name: "Enhance selected URL to card link",
       callback: () => this.enhanceSelectedURL(),
       hotkeys: [
@@ -76,7 +76,7 @@ export default class ObsidianOGP extends Plugin {
       })
     );
 
-    this.addSettingTab(new ObsidianOGPSettingTab(this.app, this));
+    this.addSettingTab(new ObsidianAutoCardLinkSettingTab(this.app, this));
   }
 
   private enhanceSelectedURL(): void {
@@ -169,7 +169,7 @@ export default class ObsidianOGP extends Plugin {
   }
 
   onunload() {
-    console.log("unloading obsidian-ogp");
+    console.log("unloading obsidian-auto-card-link");
   }
 
   private async loadSettings() {
