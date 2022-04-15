@@ -19,7 +19,6 @@ export default class ObsidianAutoCardLink extends Plugin {
   pasteFunction?: PasteFunction;
 
   async onload() {
-    console.log("loading obsidian-auto-card-link");
     await this.loadSettings();
 
     this.registerMarkdownCodeBlockProcessor("cardlink", async (source, el) => {
@@ -30,7 +29,7 @@ export default class ObsidianAutoCardLink extends Plugin {
     this.pasteFunction = this.pasteAndEnhanceURL.bind(this);
 
     this.addCommand({
-      id: "obsidian-auto-card-link-paste-and-enhance",
+      id: "auto-card-link-paste-and-enhance",
       name: "Paste URL and enhance to card link",
       callback: () => {
         this.manualPasteAndEnhanceURL();
@@ -39,7 +38,7 @@ export default class ObsidianAutoCardLink extends Plugin {
     });
 
     this.addCommand({
-      id: "obsidian-auto-card-link-enhance-selected-url",
+      id: "auto-card-link-enhance-selected-url",
       name: "Enhance selected URL to card link",
       callback: () => this.enhanceSelectedURL(),
       hotkeys: [
@@ -169,7 +168,7 @@ export default class ObsidianAutoCardLink extends Plugin {
   }
 
   onunload() {
-    console.log("unloading obsidian-auto-card-link");
+    console.log("unloading auto-card-link");
   }
 
   private async loadSettings() {

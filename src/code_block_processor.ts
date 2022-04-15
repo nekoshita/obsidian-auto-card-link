@@ -56,7 +56,7 @@ export class CodeBlockProcessor {
 
   private genErrorEl(errorMsg: string): HTMLElement {
     const containerEl = document.createElement("div");
-    containerEl.addClass("obsidian-auto-card-link-error-container");
+    containerEl.addClass("auto-card-link-error-container");
 
     const spanEl = document.createElement("span");
     spanEl.textContent = `cardlink error: ${errorMsg}`;
@@ -67,36 +67,36 @@ export class CodeBlockProcessor {
 
   private genLinkEl(data: LinkMetadata): HTMLElement {
     const containerEl = document.createElement("div");
-    containerEl.addClass("obsidian-auto-card-link-container");
+    containerEl.addClass("auto-card-link-container");
 
     const cardEl = document.createElement("a");
-    cardEl.addClass("obsidian-auto-card-link-card");
+    cardEl.addClass("auto-card-link-card");
     cardEl.setAttr("href", data.url);
     containerEl.appendChild(cardEl);
 
     const mainEl = document.createElement("div");
-    mainEl.addClass("obsidian-auto-card-link-main");
+    mainEl.addClass("auto-card-link-main");
     cardEl.appendChild(mainEl);
 
     const titleEl = document.createElement("div");
-    titleEl.addClass("obsidian-auto-card-link-title");
+    titleEl.addClass("auto-card-link-title");
     titleEl.textContent = data.title;
     mainEl.appendChild(titleEl);
 
     const descriptionEl = document.createElement("div");
-    descriptionEl.addClass("obsidian-auto-card-link-description");
+    descriptionEl.addClass("auto-card-link-description");
     if (data.description) {
       descriptionEl.textContent = data.description;
     }
     mainEl.appendChild(descriptionEl);
 
     const hostEl = document.createElement("div");
-    hostEl.addClass("obsidian-auto-card-link-host");
+    hostEl.addClass("auto-card-link-host");
     mainEl.appendChild(hostEl);
 
     if (data.favicon) {
       const faviconEl = document.createElement("img");
-      faviconEl.addClass("obsidian-auto-card-link-favicon");
+      faviconEl.addClass("auto-card-link-favicon");
       if (data.favicon) {
         faviconEl.setAttr("src", data.favicon);
       }
@@ -113,11 +113,11 @@ export class CodeBlockProcessor {
     hostEl.appendChild(hostNameEl);
 
     const thumbnailEl = document.createElement("div");
-    thumbnailEl.addClass("obsidian-auto-card-link-thumbnail");
+    thumbnailEl.addClass("auto-card-link-thumbnail");
     cardEl.appendChild(thumbnailEl);
 
     const thumbnailImgEl = document.createElement("img");
-    thumbnailImgEl.addClass("obsidian-auto-card-link-thumbnail-img");
+    thumbnailImgEl.addClass("auto-card-link-thumbnail-img");
     if (data.image) {
       thumbnailImgEl.setAttr("src", data.image);
     }
