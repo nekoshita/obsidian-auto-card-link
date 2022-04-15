@@ -23,7 +23,7 @@ export const DEFAULT_SETTINGS: ObsidianAutoCardLinkSettings = {
     /\[([^[\]]*)\]\((https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})\)/gi,
   imageRegex: /\.(gif|jpe?g|tiff?|png|webp|bmp|tga|psd|ai)$/i,
   showInMenuItem: true,
-  enhanceDefaultPaste: true,
+  enhanceDefaultPaste: false,
 };
 
 export class ObsidianAutoCardLinkSettingTab extends PluginSettingTab {
