@@ -21,7 +21,7 @@ export class CodeBlockProcessor {
       } else if (error instanceof YamlParseError) {
         el.appendChild(this.genErrorEl(error.message));
       } else {
-        console.log("Code Block: clink unknown error", error);
+        console.log("Code Block: cardlink unknown error", error);
       }
     }
   }
@@ -59,7 +59,7 @@ export class CodeBlockProcessor {
     containerEl.addClass("obsidian-auto-card-link-error-container");
 
     const spanEl = document.createElement("span");
-    spanEl.textContent = `clink error: ${errorMsg}`;
+    spanEl.textContent = `cardlink error: ${errorMsg}`;
     containerEl.appendChild(spanEl);
 
     return containerEl;
