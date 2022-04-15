@@ -22,7 +22,7 @@ export default class ObsidianAutoCardLink extends Plugin {
     console.log("loading obsidian-auto-card-link");
     await this.loadSettings();
 
-    this.registerMarkdownCodeBlockProcessor("clink", async (source, el) => {
+    this.registerMarkdownCodeBlockProcessor("cardlink", async (source, el) => {
       const processor = new CodeBlockProcessor(this.app);
       await processor.run(source, el);
     });
