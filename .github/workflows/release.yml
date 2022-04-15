@@ -6,7 +6,7 @@ on:
       - "*"
 
 env:
-  PLUGIN_NAME: obsidian-auto-card-link
+  PLUGIN_NAME: auto-card-link
 
 jobs:
   build:
