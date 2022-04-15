@@ -5,9 +5,6 @@
 
 ![](demo.gif)
 
-![](codeblock.png)
-
-
 # Feature
 - Paste and enhance copied url
 - Enhance selected url
