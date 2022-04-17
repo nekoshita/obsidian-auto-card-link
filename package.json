@@ -1,7 +1,7 @@
 {
   "name": "obsidian-auto-card-link",
   "version": "1.0.1",
-  "description": "Automatically fetches metadata from a url and make it card-styled link",
+  "description": "Automatically fetches metadata from a url and makes it as a card-styled link",
   "main": "main.js",
   "type": "module",
   "scripts": {
