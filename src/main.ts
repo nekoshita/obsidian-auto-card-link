@@ -31,8 +31,8 @@ export default class ObsidianAutoCardLink extends Plugin {
     this.addCommand({
       id: "auto-card-link-paste-and-enhance",
       name: "Paste URL and enhance to card link",
-      callback: () => {
-        this.manualPasteAndEnhanceURL();
+      editorCallback: async (editor: Editor) => {
+        await this.manualPasteAndEnhanceURL(editor);
       },
       hotkeys: [],
     });
@@ -40,7 +40,14 @@ export default class ObsidianAutoCardLink extends Plugin {
     this.addCommand({
       id: "auto-card-link-enhance-selected-url",
       name: "Enhance selected URL to card link",
-      callback: () => this.enhanceSelectedURL(),
+      editorCheckCallback: (checking: boolean, editor: Editor) => {
+        // if offline, not showing command
+        if (!navigator.onLine) return false;
+
+        if (checking) return true;
+
+        this.enhanceSelectedURL(editor);
+      },
       hotkeys: [
         {
           modifiers: ["Mod", "Shift"],
@@ -55,20 +62,32 @@ export default class ObsidianAutoCardLink extends Plugin {
 
     this.registerEvent(
       this.app.workspace.on("editor-menu", (menu) => {
+        // if showInMenuItem setting is false, now showing menu item
         if (!this.settings?.showInMenuItem) return;
 
         menu.addItem((item) => {
           item
             .setTitle("Paste URL and enhance to card link")
             .setIcon("paste")
-            .onClick(() => this.manualPasteAndEnhanceURL());
+            .onClick(async () => {
+              const editor = this.getEditor();
+              if (!editor) return;
+              this.manualPasteAndEnhanceURL(editor);
+            });
         });
+
+        // if offline, not showing "Enhance selected URL to card link" item
+        if (!navigator.onLine) return;
 
         menu.addItem((item) => {
           item
             .setTitle("Enhance selected URL to card link")
             .setIcon("link")
-            .onClick(() => this.enhanceSelectedURL());
+            .onClick(() => {
+              const editor = this.getEditor();
+              if (!editor) return;
+              this.enhanceSelectedURL(editor);
+            });
         });
 
         return;
@@ -78,10 +97,7 @@ export default class ObsidianAutoCardLink extends Plugin {
     this.addSettingTab(new ObsidianAutoCardLinkSettingTab(this.app, this));
   }
 
-  private enhanceSelectedURL(): void {
-    if (!navigator.onLine) return;
-    const editor = this.getEditor();
-    if (!editor) return;
+  private enhanceSelectedURL(editor: Editor): void {
     const selectedText = (
       EditorExtensions.getSelectedText(editor) || ""
     ).trim();
@@ -96,21 +112,20 @@ export default class ObsidianAutoCardLink extends Plugin {
     }
   }
 
-  private async manualPasteAndEnhanceURL(): Promise<void> {
-    const editor = this.getEditor();
-    if (!editor) return;
-
+  private async manualPasteAndEnhanceURL(editor: Editor): Promise<void> {
+    // if no clipboardText, do nothing
     const clipboardText = await navigator.clipboard.readText();
-    if (clipboardText == null || clipboardText == "") return;
+    if (clipboardText == null || clipboardText == "") {
+      return;
+    }
 
+    // if offline, just paste
     if (!navigator.onLine) {
       editor.replaceSelection(clipboardText);
       return;
     }
 
-    // If its not a URL, we return false to allow the default paste handler to take care of it.
-    // Similarly, image urls don't have a meaningful attribute so downloading it
-    // to fetching metadata is a waste of bandwidth.
+    // If not URL, just paste
     if (!CheckIf.isUrl(clipboardText) || CheckIf.isImage(clipboardText)) {
       editor.replaceSelection(clipboardText);
       return;
@@ -122,10 +137,10 @@ export default class ObsidianAutoCardLink extends Plugin {
   }
 
   private async pasteAndEnhanceURL(clipboard: ClipboardEvent): Promise<void> {
-    if (!this.settings?.enhanceDefaultPaste) {
-      return;
-    }
+    // if enhanceDefaultPaste is false, do nothing
+    if (!this.settings?.enhanceDefaultPaste) return;
 
+    // if offline, do nothing
     if (!navigator.onLine) return;
 
     const editor = this.getEditor();
