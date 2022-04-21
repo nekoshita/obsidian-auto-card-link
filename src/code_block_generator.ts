@@ -62,16 +62,17 @@ export class CodeBlockGenerator {
   private async fetchLinkMetadata(
     url: string
   ): Promise<LinkMetadata | undefined> {
-    const data = await ajaxPromise({
-      url: `http://iframely.server.crestify.com/iframely?url=${url}`,
-    })
-      .then((res) => {
+    const data = await (async () => {
+      try {
+        const res = await ajaxPromise({
+          url: `http://iframely.server.crestify.com/iframely?url=${url}`,
+        });
         return JSON.parse(res);
-      })
-      .catch((error) => {
-        console.log(error);
+      } catch (e) {
+        console.log(e);
         return;
-      });
+      }
+    })();
 
     if (!data || data.links.length == 0 || !data.meta.title) {
       return;

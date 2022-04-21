@@ -168,9 +168,9 @@ export default class ObsidianAutoCardLink extends Plugin {
   }
 
   private getEditor(): Editor | undefined {
-    const activeLeaf = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (activeLeaf == null) return;
-    return activeLeaf.editor;
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (!view) return;
+    return view.editor;
   }
 
   private getUrlFromLink(link: string): string {
