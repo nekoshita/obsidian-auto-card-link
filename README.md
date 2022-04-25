@@ -38,6 +38,8 @@ image: https://obsidian.md/images/banner.png
 ​```
 ```
 
+# Customizing Style
+Card-styled link is styled by [styles.css](./styles.css). To customize, you can try making [CSS snippets](https://help.obsidian.md/How+to/Add+custom+styles#Use+Themes+and+or+CSS+snippets).
 
 # Motivation
 - Wanted to show beautiful links in my notes
