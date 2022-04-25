@@ -52,13 +52,13 @@
 .auto-card-link-description {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 3;
+    max-height: 4.65em;
     overflow-x: hidden;
     overflow-y: hidden;
     margin-top: 0.5em;
     color: #77838c;
     font-size: 0.8em !important;
-    max-height: 1.55em;
 }
 
 .auto-card-link-host {
