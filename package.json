@@ -32,7 +32,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "obsidian": "^0.14.3",
     "prettier": "^2.6.1",
-    "typescript": "^4.6.3",
-    "yaml": "^2.0.0"
+    "typescript": "^4.6.3"
   }
 }
