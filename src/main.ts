@@ -111,6 +111,9 @@ export default class ObsidianAutoCardLink extends Plugin {
 
     if (evt.clipboardData == null) return;
 
+    // If clipboardData includes any files, we return false to allow the default paste handler to take care of it.
+    if (evt.clipboardData.files.length > 0) return;
+
     const clipboardText = evt.clipboardData.getData("text/plain");
     if (clipboardText == null || clipboardText == "") return;
 
