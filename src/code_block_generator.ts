@@ -2,6 +2,7 @@ import { Editor, Notice, requestUrl } from "obsidian";
 
 import { LinkMetadata } from "src/interfaces";
 import { EditorExtensions } from "src/editor_enhancements";
+import { LinkMetadataParser } from "src/link_metadata_parser";
 
 export class CodeBlockGenerator {
   editor: Editor;
@@ -62,50 +63,21 @@ export class CodeBlockGenerator {
   private async fetchLinkMetadata(
     url: string
   ): Promise<LinkMetadata | undefined> {
-    const data = await (async () => {
+    const res = await (async () => {
       try {
-        return (
-          await requestUrl({
-            url: `http://iframely.server.crestify.com/iframely?url=${url}`,
-          })
-        ).json;
+        return requestUrl({ url });
       } catch (e) {
         console.log(e);
         return;
       }
     })();
-
-    if (!data || data.links.length == 0 || !data.meta.title) {
+    if (!res || res.status != 200) {
+      console.log(`bad response. response status code was ${res?.status}`);
       return;
     }
 
-    const favicon = data.links.find((link: { rel: string[] }) => {
-      return link.rel.includes("icon");
-    })?.href;
-    const title = data.meta.title
-      ?.replace(/\r\n|\n|\r/g, "")
-      .replace(/"/g, '\\"')
-      .trim();
-    const description = data.meta.description
-      ?.replace(/\r\n|\n|\r/g, "")
-      .replace(/"/g, '\\"')
-      .trim();
-    const { hostname } = new URL(url);
-    const image = ((): string | undefined => {
-      if (data.links.length == 0) return;
-      const href = data.links[0].href;
-      if (favicon == href) return;
-      return href;
-    })();
-
-    return {
-      url: url,
-      title: title,
-      description: description,
-      host: hostname,
-      favicon: favicon,
-      image: image,
-    };
+    const parser = new LinkMetadataParser(url, res.text);
+    return parser.parse();
   }
 
   private createBlockHash(): string {
