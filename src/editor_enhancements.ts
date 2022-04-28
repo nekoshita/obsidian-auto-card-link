@@ -1,6 +1,6 @@
 import { Editor, EditorPosition } from "obsidian";
 
-import { DEFAULT_SETTINGS } from "src/settings";
+import { linkLineRegex, lineRegex } from "src/regex";
 
 interface WordBoundaries {
   start: { line: number; ch: number };
@@ -32,7 +32,7 @@ export class EditorExtensions {
     // In this case we can simply overwrite the link boundaries as-is
     const lineText = editor.getLine(cursor.line);
     // First check if we're in a link
-    const linksInLine = lineText.matchAll(DEFAULT_SETTINGS.linkLineRegex);
+    const linksInLine = lineText.matchAll(linkLineRegex);
 
     for (const match of linksInLine) {
       if (this.isCursorWithinBoundaries(cursor, match)) {
@@ -48,7 +48,7 @@ export class EditorExtensions {
     }
 
     // If not, check if we're in just a standard ol' URL.
-    const urlsInLine = lineText.matchAll(DEFAULT_SETTINGS.lineRegex);
+    const urlsInLine = lineText.matchAll(lineRegex);
 
     for (const match of urlsInLine) {
       if (this.isCursorWithinBoundaries(cursor, match)) {

@@ -1,4 +1,4 @@
-import { Editor, Notice } from "obsidian";
+import { Editor, Notice, requestUrl } from "obsidian";
 
 import { LinkMetadata } from "src/interfaces";
 import { EditorExtensions } from "src/editor_enhancements";
@@ -64,10 +64,11 @@ export class CodeBlockGenerator {
   ): Promise<LinkMetadata | undefined> {
     const data = await (async () => {
       try {
-        const res = await ajaxPromise({
-          url: `http://iframely.server.crestify.com/iframely?url=${url}`,
-        });
-        return JSON.parse(res);
+        return (
+          await requestUrl({
+            url: `http://iframely.server.crestify.com/iframely?url=${url}`,
+          })
+        ).json;
       } catch (e) {
         console.log(e);
         return;

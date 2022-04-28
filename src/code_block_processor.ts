@@ -1,5 +1,4 @@
-import { App } from "obsidian";
-import * as Yaml from "yaml";
+import { App, parseYaml } from "obsidian";
 
 import { YamlParseError, NoRequiredParamsError } from "src/errors";
 import { LinkMetadata } from "src/interfaces";
@@ -30,7 +29,7 @@ export class CodeBlockProcessor {
     let yaml: Partial<LinkMetadata>;
 
     try {
-      yaml = Yaml.parse(source) as Partial<LinkMetadata>;
+      yaml = parseYaml(source) as Partial<LinkMetadata>;
     } catch (error) {
       console.log(error);
       throw new YamlParseError(
