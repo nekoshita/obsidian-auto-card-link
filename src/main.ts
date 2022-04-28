@@ -10,13 +10,8 @@ import { CheckIf } from "src/checkif";
 import { CodeBlockGenerator } from "src/code_block_generator";
 import { CodeBlockProcessor } from "src/code_block_processor";
 
-interface PasteFunction {
-  (this: HTMLElement, ev: ClipboardEvent): void;
-}
-
 export default class ObsidianAutoCardLink extends Plugin {
   settings?: ObsidianAutoCardLinkSettings;
-  pasteFunction?: PasteFunction;
 
   async onload() {
     await this.loadSettings();
@@ -25,8 +20,6 @@ export default class ObsidianAutoCardLink extends Plugin {
       const processor = new CodeBlockProcessor(this.app);
       await processor.run(source, el);
     });
-
-    this.pasteFunction = this.pasteAndEnhanceURL.bind(this);
 
     this.addCommand({
       id: "auto-card-link-paste-and-enhance",
@@ -56,9 +49,7 @@ export default class ObsidianAutoCardLink extends Plugin {
       ],
     });
 
-    this.registerEvent(
-      this.app.workspace.on("editor-paste", this.pasteFunction)
-    );
+    this.registerEvent(this.app.workspace.on("editor-paste", this.onPaste));
 
     this.registerEvent(
       this.app.workspace.on("editor-menu", (menu) => {
@@ -132,23 +123,23 @@ export default class ObsidianAutoCardLink extends Plugin {
     }
 
     const codeBlockGenerator = new CodeBlockGenerator(editor);
-    codeBlockGenerator.convertUrlToCodeBlock(clipboardText);
+    await codeBlockGenerator.convertUrlToCodeBlock(clipboardText);
     return;
   }
 
-  private async pasteAndEnhanceURL(clipboard: ClipboardEvent): Promise<void> {
+  private onPaste = async (
+    evt: ClipboardEvent,
+    editor: Editor
+  ): Promise<void> => {
     // if enhanceDefaultPaste is false, do nothing
     if (!this.settings?.enhanceDefaultPaste) return;
 
     // if offline, do nothing
     if (!navigator.onLine) return;
 
-    const editor = this.getEditor();
-    if (!editor) return;
+    if (evt.clipboardData == null) return;
 
-    if (clipboard.clipboardData == null) return;
-
-    const clipboardText = clipboard.clipboardData.getData("text/plain");
+    const clipboardText = evt.clipboardData.getData("text/plain");
     if (clipboardText == null || clipboardText == "") return;
 
     // If its not a URL, we return false to allow the default paste handler to take care of it.
@@ -159,13 +150,13 @@ export default class ObsidianAutoCardLink extends Plugin {
     }
 
     // We've decided to handle the paste, stop propagation to the default handler.
-    clipboard.stopPropagation();
-    clipboard.preventDefault();
+    evt.stopPropagation();
+    evt.preventDefault();
 
     const codeBlockGenerator = new CodeBlockGenerator(editor);
-    codeBlockGenerator.convertUrlToCodeBlock(clipboardText);
+    await codeBlockGenerator.convertUrlToCodeBlock(clipboardText);
     return;
-  }
+  };
 
   private getEditor(): Editor | undefined {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
