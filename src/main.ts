@@ -9,6 +9,7 @@ import { EditorExtensions } from "src/editor_enhancements";
 import { CheckIf } from "src/checkif";
 import { CodeBlockGenerator } from "src/code_block_generator";
 import { CodeBlockProcessor } from "src/code_block_processor";
+import { linkRegex } from "src/regex";
 
 export default class ObsidianAutoCardLink extends Plugin {
   settings?: ObsidianAutoCardLinkSettings;
@@ -83,6 +84,9 @@ export default class ObsidianAutoCardLink extends Plugin {
       editor.replaceSelection(clipboardText);
       return;
     }
+
+    console.log(clipboardText);
+    console.log(CheckIf.isUrl(clipboardText));
 
     // If not URL, just paste
     if (!CheckIf.isUrl(clipboardText) || CheckIf.isImage(clipboardText)) {
@@ -165,7 +169,7 @@ export default class ObsidianAutoCardLink extends Plugin {
   }
 
   private getUrlFromLink(link: string): string {
-    const urlRegex = new RegExp(DEFAULT_SETTINGS.linkRegex);
+    const urlRegex = new RegExp(linkRegex);
     const regExpExecArray = urlRegex.exec(link);
     if (regExpExecArray === null || regExpExecArray.length < 2) {
       return "";
