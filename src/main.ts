@@ -1,4 +1,4 @@
-import { Plugin, MarkdownView, Editor } from "obsidian";
+import { Plugin, MarkdownView, Editor, Menu, MenuItem } from "obsidian";
 
 import {
   ObsidianAutoCardLinkSettings,
@@ -51,39 +51,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 
     this.registerEvent(this.app.workspace.on("editor-paste", this.onPaste));
 
-    this.registerEvent(
-      this.app.workspace.on("editor-menu", (menu) => {
-        // if showInMenuItem setting is false, now showing menu item
-        if (!this.settings?.showInMenuItem) return;
-
-        menu.addItem((item) => {
-          item
-            .setTitle("Paste URL and enhance to card link")
-            .setIcon("paste")
-            .onClick(async () => {
-              const editor = this.getEditor();
-              if (!editor) return;
-              this.manualPasteAndEnhanceURL(editor);
-            });
-        });
-
-        // if offline, not showing "Enhance selected URL to card link" item
-        if (!navigator.onLine) return;
-
-        menu.addItem((item) => {
-          item
-            .setTitle("Enhance selected URL to card link")
-            .setIcon("link")
-            .onClick(() => {
-              const editor = this.getEditor();
-              if (!editor) return;
-              this.enhanceSelectedURL(editor);
-            });
-        });
-
-        return;
-      })
-    );
+    this.registerEvent(this.app.workspace.on("editor-menu", this.onEditorMenu));
 
     this.addSettingTab(new ObsidianAutoCardLinkSettingTab(this.app, this));
   }
@@ -155,6 +123,38 @@ export default class ObsidianAutoCardLink extends Plugin {
 
     const codeBlockGenerator = new CodeBlockGenerator(editor);
     await codeBlockGenerator.convertUrlToCodeBlock(clipboardText);
+    return;
+  };
+
+  private onEditorMenu = (menu: Menu) => {
+    // if showInMenuItem setting is false, now showing menu item
+    if (!this.settings?.showInMenuItem) return;
+
+    menu.addItem((item: MenuItem) => {
+      item
+        .setTitle("Paste URL and enhance to card link")
+        .setIcon("paste")
+        .onClick(async () => {
+          const editor = this.getEditor();
+          if (!editor) return;
+          this.manualPasteAndEnhanceURL(editor);
+        });
+    });
+
+    // if offline, not showing "Enhance selected URL to card link" item
+    if (!navigator.onLine) return;
+
+    menu.addItem((item: MenuItem) => {
+      item
+        .setTitle("Enhance selected URL to card link")
+        .setIcon("link")
+        .onClick(() => {
+          const editor = this.getEditor();
+          if (!editor) return;
+          this.enhanceSelectedURL(editor);
+        });
+    });
+
     return;
   };
 
