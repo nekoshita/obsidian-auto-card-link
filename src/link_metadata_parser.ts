@@ -13,10 +13,16 @@ export class LinkMetadataParser {
   }
 
   parse(): LinkMetadata | undefined {
-    const title = this.getTitle();
+    const title = this.getTitle()
+      ?.replace(/\r\n|\n|\r/g, "")
+      .replace(/"/g, '\\"')
+      .trim();
     if (!title) return;
 
-    const description = this.getDescription();
+    const description = this.getDescription()
+      ?.replace(/\r\n|\n|\r/g, "")
+      .replace(/"/g, '\\"')
+      .trim();
     const { hostname } = new URL(this.url);
     const favicon = this.getFavicon();
     const image = this.getImage();
