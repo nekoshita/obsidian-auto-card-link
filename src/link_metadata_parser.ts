@@ -34,6 +34,7 @@ export class LinkMetadataParser {
       host: hostname,
       favicon: favicon,
       image: image,
+      indent: 0,
     };
   }
 
