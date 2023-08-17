@@ -28,6 +28,20 @@ export class CodeBlockProcessor {
   private parseLinkMetadataFromYaml(source: string): LinkMetadata {
     let yaml: Partial<LinkMetadata>;
 
+    let indent = -1;
+    source = source
+      .split(/\r?\n|\r|\n/g)
+      .map((line) =>
+        line.replace(/^\t+/g, (tabs) => {
+          const n = tabs.length;
+          if (indent < 0) {
+            indent = n;
+          }
+          return " ".repeat(n);
+        })
+      )
+      .join("\n");
+
     try {
       yaml = parseYaml(source) as Partial<LinkMetadata>;
     } catch (error) {
@@ -50,6 +64,7 @@ export class CodeBlockProcessor {
       host: yaml.host,
       favicon: yaml.favicon,
       image: yaml.image,
+      indent,
     };
   }
 
@@ -67,6 +82,7 @@ export class CodeBlockProcessor {
   private genLinkEl(data: LinkMetadata): HTMLElement {
     const containerEl = document.createElement("div");
     containerEl.addClass("auto-card-link-container");
+    containerEl.setAttr("data-auto-card-link-depth", data.indent);
 
     const cardEl = document.createElement("a");
     cardEl.addClass("auto-card-link-card");

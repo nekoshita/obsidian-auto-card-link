@@ -3,7 +3,37 @@
     border: solid 1px rgba(92, 147, 187, 0.2);
     border-radius: 8px;
     overflow: hidden;
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+}
+
+.auto-card-link-container {
+    --auto-card-link-indent-size: 2.5em;
+
+    &[data-auto-card-link-depth="0"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 0);
+    }
+    &[data-auto-card-link-depth="1"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 1);
+    }
+    &[data-auto-card-link-depth="2"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 2);
+    }
+    &[data-auto-card-link-depth="3"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 3);
+    }
+    &[data-auto-card-link-depth="4"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 4);
+    }
+    &[data-auto-card-link-depth="5"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 5);
+    }
+    &[data-auto-card-link-depth="6"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 6);
+    }
+    &[data-auto-card-link-depth="7"] {
+        margin-left: calc(var(--auto-card-link-indent-size) * 7);
+    }
 }
 
 .auto-card-link-error-container {
@@ -11,11 +41,11 @@
     margin: 0 auto;
     border-radius: 8px;
     overflow: hidden;
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
     background-color: rgb(255, 246, 228);
     padding: 10px;
 }
-
 
 .auto-card-link-card {
     display: flex;
@@ -31,37 +61,36 @@
 
 .auto-card-link-main {
     flex: 1;
-    padding: 0.8em 1.2em;
+    height: 100%;
+    padding: 0.25em 1.2em;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
 .auto-card-link-title {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    overflow-x: hidden;
-    overflow-y: hidden;
+    overflow: hidden;
     word-break: break-word;
     margin: 0;
     font-size: 1em !important;
-    max-height: 3.05em;
     user-select: none;
 }
 
 .auto-card-link-description {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     max-height: 4.65em;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    margin-top: 0.5em;
+    overflow: hidden;
     color: #77838c;
     font-size: 0.8em !important;
 }
 
 .auto-card-link-host {
-    margin-top: 0.5em;
     font-size: 0.78em !important;
     display: flex;
     align-items: center;

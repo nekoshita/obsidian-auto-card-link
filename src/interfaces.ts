@@ -5,4 +5,5 @@ export interface LinkMetadata {
   host?: string;
   favicon?: string;
   image?: string;
+  indent: number;
 }
