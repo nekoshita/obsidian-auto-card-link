@@ -13,7 +13,7 @@ export class CodeBlockProcessor {
   async run(source: string, el: HTMLElement) {
     try {
       const data = this.parseLinkMetadataFromYaml(source);
-      el.appendChild(this.genLinkEl(data));
+      el.appendChild(this.genLinkEl(await data));
     } catch (error) {
       if (error instanceof NoRequiredParamsError) {
         el.appendChild(this.genErrorEl(error.message));
@@ -25,7 +25,7 @@ export class CodeBlockProcessor {
     }
   }
 
-  private parseLinkMetadataFromYaml(source: string): LinkMetadata {
+  private async parseLinkMetadataFromYaml(source: string): Promise<LinkMetadata> {
     let yaml: Partial<LinkMetadata>;
 
     let indent = -1;
@@ -56,17 +56,69 @@ export class CodeBlockProcessor {
         "required params[url, title] are not found."
       );
     }
+    let image, favicon;
+    if(yaml.image){
+      image = await this.fixImageUrl(yaml.host,yaml.image);
+    }
+    if(yaml.favicon){
+      favicon = await this.fixImageUrl(yaml.host,yaml.favicon);
+    }
 
     return {
       url: yaml.url,
       title: yaml.title,
       description: yaml.description,
       host: yaml.host,
-      favicon: yaml.favicon,
-      image: yaml.image,
+      favicon: favicon,
+      image: image,
       indent,
     };
   }
+
+  private async fixImageUrl(
+    host: string | undefined,
+    url: string | undefined
+  ): Promise<string> {
+    if(url === undefined)return "";
+    let image = "";
+    // check if image url use double protocol
+    if (url && url.startsWith("//")) {
+      //   check if url can access via https or http
+      const imageUrl = new URL(url);
+      const testUrlHttps = `https:${imageUrl}`;
+      const testUrlHttp = `http:${imageUrl}`;
+      if (await checkUrlAccessibility(testUrlHttps)) {
+        image = testUrlHttps;
+      } else if (await checkUrlAccessibility(testUrlHttp)) {
+        image = testUrlHttp;
+      }
+    }
+    //   check if image url is protocol relative
+    if (url && url.startsWith("/") && host) {
+      const testUrlHttps = `https://${host}${url}`;
+      const testUrlHttp = `http://${host}${url}`;
+      const resUrlHttps = await checkUrlAccessibility(testUrlHttps);
+      const resUrlHttp = await checkUrlAccessibility(testUrlHttp);
+      //   check if url can access via https or http
+      if (resUrlHttps) {
+        image = testUrlHttps;
+      } else if (resUrlHttp) {
+        image = testUrlHttp;
+      }
+    }
+    // check if url is accessible via image element
+    async function checkUrlAccessibility(url: string):Promise<boolean> {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+      });
+    }
+    return image;
+  }
+
+
 
   private genErrorEl(errorMsg: string): HTMLElement {
     const containerEl = document.createElement("div");
