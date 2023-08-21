@@ -12,20 +12,20 @@ export class LinkMetadataParser {
     this.htmlDoc = htmlDoc;
   }
 
-  parse(): LinkMetadata | undefined {
+  async parse(): Promise<LinkMetadata | undefined> {
     const title = this.getTitle()
-      ?.replace(/\r\n|\n|\r/g, "")
-      .replace(/"/g, '\\"')
-      .trim();
+        ?.replace(/\r\n|\n|\r/g, "")
+        .replace(/"/g, '\\"')
+        .trim();
     if (!title) return;
 
     const description = this.getDescription()
-      ?.replace(/\r\n|\n|\r/g, "")
-      .replace(/"/g, '\\"')
-      .trim();
-    const { hostname } = new URL(this.url);
-    const favicon = this.getFavicon();
-    const image = this.getImage();
+        ?.replace(/\r\n|\n|\r/g, "")
+        .replace(/"/g, '\\"')
+        .trim();
+    const {hostname} = new URL(this.url);
+    const favicon = await this.getFavicon();
+    const image = await this.getImage();
 
     return {
       url: this.url,
@@ -60,17 +60,60 @@ export class LinkMetadataParser {
     if (metaDescription) return metaDescription;
   }
 
-  private getFavicon(): string | undefined {
+  private async getFavicon(): Promise<string | undefined> {
     const favicon = this.htmlDoc
-      .querySelector("link[rel='icon']")
-      ?.getAttr("href");
-    if (favicon) return favicon;
+        .querySelector("link[rel='icon']")
+        ?.getAttr("href");
+    if (favicon) return await this.fixImageUrl(favicon);
   }
 
-  private getImage(): string | undefined {
+  private async getImage(): Promise<string | undefined> {
     const ogImage = this.htmlDoc
-      .querySelector("meta[property='og:image']")
-      ?.getAttr("content");
-    if (ogImage) return ogImage;
+        .querySelector("meta[property='og:image']")
+        ?.getAttr("content");
+    console.log(ogImage, `https:${ogImage}`)
+    if (ogImage) return await this.fixImageUrl(`https:${ogImage}`);
   }
+
+  private async fixImageUrl(url: string | undefined): Promise<string> {
+    if (url === undefined) return "";
+    const { hostname } = new URL(this.url);
+    let image = url;
+    // check if image url use double protocol
+    if (url && url.startsWith("//")) {
+      //   check if url can access via https or http
+      const testUrlHttps = `https:${url}`;
+      const testUrlHttp = `http:${url}`;
+      if (await checkUrlAccessibility(testUrlHttps)) {
+        image = testUrlHttps;
+      } else if (await checkUrlAccessibility(testUrlHttp)) {
+        image = testUrlHttp;
+      }
+    } else if (url && url.startsWith("/") && hostname) {
+      //   check if image url is relative path
+      const testUrlHttps = `https://${hostname}${url}`;
+      const testUrlHttp = `http://${hostname}${url}`;
+      const resUrlHttps = await checkUrlAccessibility(testUrlHttps);
+      const resUrlHttp = await checkUrlAccessibility(testUrlHttp);
+      //   check if url can access via https or http
+      if (resUrlHttps) {
+        image = testUrlHttps;
+      } else if (resUrlHttp) {
+        image = testUrlHttp;
+      }
+    }
+
+    // check if url is accessible via image element
+    async function checkUrlAccessibility(url: string): Promise<boolean> {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+      });
+    }
+
+    return image;
+  }
+
 }
