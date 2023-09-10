@@ -114,3 +114,15 @@
     height: 100%;
     flex-shrink: 0;
 }
+
+.auto-card-link-copy-url {
+    background: var(--background-primary-alt);
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    z-index: 1;
+
+    .is-phone & {
+        width: var(--input-height);
+    }
+}

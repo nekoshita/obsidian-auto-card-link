@@ -1,4 +1,4 @@
-import { App, parseYaml } from "obsidian";
+import { App, parseYaml, Notice, ButtonComponent } from "obsidian";
 
 import { YamlParseError, NoRequiredParamsError } from "src/errors";
 import { LinkMetadata } from "src/interfaces";
@@ -138,6 +138,16 @@ export class CodeBlockProcessor {
     }
     thumbnailImgEl.setAttr("alt", "");
     thumbnailEl.appendChild(thumbnailImgEl);
+
+    new ButtonComponent(containerEl)
+      .setClass("auto-card-link-copy-url")
+      .setClass("clickable-icon")
+      .setIcon("copy")
+      .setTooltip(`Copy URL\n${data.url}`)
+      .onClick(() => {
+        navigator.clipboard.writeText(data.url);
+        new Notice("URL copied to your clipboard")
+      });
 
     return containerEl;
   }
