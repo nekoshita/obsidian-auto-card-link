@@ -137,7 +137,7 @@ export class CodeBlockProcessor {
       .setTooltip(`Copy URL\n${data.url}`)
       .onClick(() => {
         navigator.clipboard.writeText(data.url);
-        new Notice("URL copied to your clipboard")
+        new Notice("URL copied to your clipboard");
       });
 
     return containerEl;
