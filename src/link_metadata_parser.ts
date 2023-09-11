@@ -71,7 +71,7 @@ export class LinkMetadataParser {
     const ogImage = this.htmlDoc
       .querySelector("meta[property='og:image']")
       ?.getAttr("content");
-    if (ogImage) return await this.fixImageUrl(`https:${ogImage}`);
+    if (ogImage) return await this.fixImageUrl(ogImage);
   }
 
   private async fixImageUrl(url: string | undefined): Promise<string> {
