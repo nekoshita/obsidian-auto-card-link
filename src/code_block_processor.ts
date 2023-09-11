@@ -98,12 +98,12 @@ export class CodeBlockProcessor {
     titleEl.textContent = data.title;
     mainEl.appendChild(titleEl);
 
-    const descriptionEl = document.createElement("div");
-    descriptionEl.addClass("auto-card-link-description");
     if (data.description) {
+      const descriptionEl = document.createElement("div");
+      descriptionEl.addClass("auto-card-link-description");
       descriptionEl.textContent = data.description;
+      mainEl.appendChild(descriptionEl);
     }
-    mainEl.appendChild(descriptionEl);
 
     const hostEl = document.createElement("div");
     hostEl.addClass("auto-card-link-host");
@@ -112,32 +112,23 @@ export class CodeBlockProcessor {
     if (data.favicon) {
       const faviconEl = document.createElement("img");
       faviconEl.addClass("auto-card-link-favicon");
-      if (data.favicon) {
-        faviconEl.setAttr("src", data.favicon);
-      }
-      faviconEl.setAttr("width", 14);
-      faviconEl.setAttr("height", 14);
-      faviconEl.setAttr("alt", "");
+      faviconEl.setAttr("src", data.favicon);
       hostEl.appendChild(faviconEl);
     }
 
-    const hostNameEl = document.createElement("span");
     if (data.host) {
+      const hostNameEl = document.createElement("span");
       hostNameEl.textContent = data.host;
+      hostEl.appendChild(hostNameEl);
     }
-    hostEl.appendChild(hostNameEl);
 
-    const thumbnailEl = document.createElement("div");
-    thumbnailEl.addClass("auto-card-link-thumbnail");
-    cardEl.appendChild(thumbnailEl);
-
-    const thumbnailImgEl = document.createElement("img");
-    thumbnailImgEl.addClass("auto-card-link-thumbnail-img");
     if (data.image) {
-      thumbnailImgEl.setAttr("src", data.image);
+      const thumbnailEl = document.createElement("img");
+      thumbnailEl.addClass("auto-card-link-thumbnail");
+      thumbnailEl.setAttr("src", data.image);
+      thumbnailEl.setAttr("draggable", "false");
+      cardEl.appendChild(thumbnailEl);
     }
-    thumbnailImgEl.setAttr("alt", "");
-    thumbnailEl.appendChild(thumbnailImgEl);
 
     new ButtonComponent(containerEl)
       .setClass("auto-card-link-copy-url")
