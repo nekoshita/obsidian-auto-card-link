@@ -14,16 +14,16 @@ export class LinkMetadataParser {
 
   async parse(): Promise<LinkMetadata | undefined> {
     const title = this.getTitle()
-        ?.replace(/\r\n|\n|\r/g, "")
-        .replace(/"/g, '\\"')
-        .trim();
+      ?.replace(/\r\n|\n|\r/g, "")
+      .replace(/"/g, '\\"')
+      .trim();
     if (!title) return;
 
     const description = this.getDescription()
-        ?.replace(/\r\n|\n|\r/g, "")
-        .replace(/"/g, '\\"')
-        .trim();
-    const {hostname} = new URL(this.url);
+      ?.replace(/\r\n|\n|\r/g, "")
+      .replace(/"/g, '\\"')
+      .trim();
+    const { hostname } = new URL(this.url);
     const favicon = await this.getFavicon();
     const image = await this.getImage();
 
@@ -62,15 +62,15 @@ export class LinkMetadataParser {
 
   private async getFavicon(): Promise<string | undefined> {
     const favicon = this.htmlDoc
-        .querySelector("link[rel='icon']")
-        ?.getAttr("href");
+      .querySelector("link[rel='icon']")
+      ?.getAttr("href");
     if (favicon) return await this.fixImageUrl(favicon);
   }
 
   private async getImage(): Promise<string | undefined> {
     const ogImage = this.htmlDoc
-        .querySelector("meta[property='og:image']")
-        ?.getAttr("content");
+      .querySelector("meta[property='og:image']")
+      ?.getAttr("content");
     if (ogImage) return await this.fixImageUrl(`https:${ogImage}`);
   }
 
@@ -114,5 +114,4 @@ export class LinkMetadataParser {
 
     return image;
   }
-
 }
