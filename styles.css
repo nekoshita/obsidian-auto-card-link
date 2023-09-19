@@ -135,12 +135,13 @@
 }
 
 .auto-card-link-favicon {
-    width: 16px;
+    width: 16px !important;
     height: 16px;
     margin: 0 0.5em 0 0 !important;
 }
 
 .auto-card-link-thumbnail {
+    width: unset !important;
     border-radius: var(--radius-s) 0 0 var(--radius-s) !important;
     height: 100%;
     object-fit: cover;
