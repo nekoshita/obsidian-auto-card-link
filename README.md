@@ -11,6 +11,7 @@
 - Paste and enhance copied url
 - Enhance selected url
 - Setting for enhancing default paste
+- Support for local images through internal links (`image: "[[image.png]]"`)
 
 
 # `cardlink` syntax
