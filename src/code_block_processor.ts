@@ -1,7 +1,14 @@
-import { App, parseYaml, Notice, ButtonComponent } from "obsidian";
+import {
+  App,
+  parseYaml,
+  Notice,
+  ButtonComponent,
+  getLinkpath
+} from "obsidian";
 
 import { YamlParseError, NoRequiredParamsError } from "src/errors";
 import { LinkMetadata } from "src/interfaces";
+import { CheckIf } from "./checkif";
 
 export class CodeBlockProcessor {
   app: App;
@@ -19,6 +26,10 @@ export class CodeBlockProcessor {
         el.appendChild(this.genErrorEl(error.message));
       } else if (error instanceof YamlParseError) {
         el.appendChild(this.genErrorEl(error.message));
+      } else if (error instanceof TypeError) {
+        el.appendChild(this.genErrorEl("internal links must be surrounded by"
+          + " quotes."));
+        console.log(error);
       } else {
         console.log("Code Block: cardlink unknown error", error);
       }
@@ -110,6 +121,9 @@ export class CodeBlockProcessor {
     mainEl.appendChild(hostEl);
 
     if (data.favicon) {
+      if (!CheckIf.isUrl(data.favicon))
+        data.favicon = this.getLocalImagePath(data.favicon);
+
       const faviconEl = document.createElement("img");
       faviconEl.addClass("auto-card-link-favicon");
       faviconEl.setAttr("src", data.favicon);
@@ -123,6 +137,9 @@ export class CodeBlockProcessor {
     }
 
     if (data.image) {
+      if (!CheckIf.isUrl(data.image))
+        data.image = this.getLocalImagePath(data.image);
+
       const thumbnailEl = document.createElement("img");
       thumbnailEl.addClass("auto-card-link-thumbnail");
       thumbnailEl.setAttr("src", data.image);
@@ -141,5 +158,16 @@ export class CodeBlockProcessor {
       });
 
     return containerEl;
+  }
+
+  private getLocalImagePath(link: string): string {
+    link = link.slice(2, -2); // remove [[]]
+    const imageRelativePath = this.app.metadataCache
+      .getFirstLinkpathDest(getLinkpath(link), "")?.path;
+
+    if (!imageRelativePath) return link;
+
+    return this.app.vault.adapter
+      .getResourcePath(imageRelativePath);
   }
 }
