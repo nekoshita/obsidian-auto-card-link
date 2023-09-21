@@ -1,10 +1,4 @@
-import {
-  App,
-  parseYaml,
-  Notice,
-  ButtonComponent,
-  getLinkpath
-} from "obsidian";
+import { App, parseYaml, Notice, ButtonComponent, getLinkpath } from "obsidian";
 
 import { YamlParseError, NoRequiredParamsError } from "src/errors";
 import { LinkMetadata } from "src/interfaces";
@@ -27,8 +21,9 @@ export class CodeBlockProcessor {
       } else if (error instanceof YamlParseError) {
         el.appendChild(this.genErrorEl(error.message));
       } else if (error instanceof TypeError) {
-        el.appendChild(this.genErrorEl("internal links must be surrounded by"
-          + " quotes."));
+        el.appendChild(
+          this.genErrorEl("internal links must be surrounded by" + " quotes.")
+        );
         console.log(error);
       } else {
         console.log("Code Block: cardlink unknown error", error);
@@ -162,12 +157,13 @@ export class CodeBlockProcessor {
 
   private getLocalImagePath(link: string): string {
     link = link.slice(2, -2); // remove [[]]
-    const imageRelativePath = this.app.metadataCache
-      .getFirstLinkpathDest(getLinkpath(link), "")?.path;
+    const imageRelativePath = this.app.metadataCache.getFirstLinkpathDest(
+      getLinkpath(link),
+      ""
+    )?.path;
 
     if (!imageRelativePath) return link;
 
-    return this.app.vault.adapter
-      .getResourcePath(imageRelativePath);
+    return this.app.vault.adapter.getResourcePath(imageRelativePath);
   }
 }
