@@ -1,5 +1,5 @@
 .markdown-reading-view .block-language-cardlink {
-    margin: 1em 0;
+    margin: var(--p-spacing) 0;
 }
 
 .auto-card-link-container {
@@ -7,6 +7,8 @@
     position: relative;
     overflow: hidden;
     user-select: none;
+
+    --auto-card-link-button-width: calc(var(--icon-size) + var(--size-2-3));
 
     --auto-card-link-indent-size: 2.5em;
 
@@ -109,6 +111,12 @@
     &:hover {
         color: var(--link-external-color-hover)
     }
+
+    /* Prevent clash with edit block button */
+    .is-live-preview .auto-card-link-container:hover &,
+    .is-live-preview .block-language-cardlink:has(+ .edit-block-button:hover) &  {
+      margin-right: var(--auto-card-link-button-width);
+    }
 }
 
 .auto-card-link-description {
@@ -125,18 +133,28 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
+
+    & span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Prevent clash with copy url button */
+    .auto-card-link-container:hover &,
+    .is-mobile .auto-card-link-container & {
+      margin-right: var(--auto-card-link-button-width);
+    }
 
     &:hover {
         color: var(--link-external-color-hover)
     }
 }
 
+
 .auto-card-link-favicon {
     width: 16px !important;
-    height: 16px;
+    height: auto !important;
     margin: 0 0.5em 0 0 !important;
 }
 
@@ -150,13 +168,13 @@
 }
 
 .auto-card-link-copy-url {
-    background: var(--background-primary-alt);
     position: absolute;
-    right: 4px;
-    bottom: 4px;
+    right: var(--size-2-2);
+    bottom: var(--size-2-2);
     z-index: 1;
 
-    .is-phone & {
-        width: var(--input-height);
+    /* Show copy button only on hover on desktop */
+    .obsidian-app:not(.is-mobile) .auto-card-link-container:not(:hover) & {
+      display: none;
     }
 }
