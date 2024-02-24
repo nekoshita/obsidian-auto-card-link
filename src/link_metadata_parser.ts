@@ -15,12 +15,14 @@ export class LinkMetadataParser {
   async parse(): Promise<LinkMetadata | undefined> {
     const title = this.getTitle()
       ?.replace(/\r\n|\n|\r/g, "")
+      .replace(/\\/g, "\\\\")
       .replace(/"/g, '\\"')
       .trim();
     if (!title) return;
 
     const description = this.getDescription()
       ?.replace(/\r\n|\n|\r/g, "")
+      .replace(/\\/g, "\\\\")
       .replace(/"/g, '\\"')
       .trim();
     const { hostname } = new URL(this.url);
